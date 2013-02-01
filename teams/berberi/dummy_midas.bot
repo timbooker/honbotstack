@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bot
+  name="Berberi_DummyMidas"
+  description="Dummy Midas bot of Berberi"
+  heroname="Hero_Midas"
+  rootlua="dummy_midas.lua"
+  defaultplayername="Me Dummy"
+  precachepath="/heroes/midas/"
+/>
