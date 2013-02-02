@@ -1,11 +1,14 @@
 local _G = getfenv(0)
-local object = _G.object
+local teambot = _G.object
 
-object.teams = object.teams or {}
+teambot.teams = teambot.teams or {}
 
-object.teams.team_berberi = {}
-local myTeam = object.teams.team_berberi
+teambot.teams.team_berberi = {}
+local team = teambot.teams.team_berberi
 
-myTeam.name = 'Team Berberi'
+team.name = 'Team Berberi'
 
 runfile 'bots/core_teambot.lua'
+
+function team:Initialize()
+end

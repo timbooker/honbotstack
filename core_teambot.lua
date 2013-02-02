@@ -1,4 +1,8 @@
 local _G = getfenv(0)
-local object = _G.object
+local teambot = _G.object
 
-object.myName = (object.myName or 'unknown')
+teambot.myName = (teambot.myName or 'unknown')
+
+function teambot:UseOriginal()
+  runfile 'bots/teambot/teambotbrain.lua'
+end
