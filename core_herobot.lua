@@ -11,6 +11,7 @@ herobot.core.enemyTeam = 0
 herobot.brain = {}
 herobot.brain.initialized = false
 herobot.brain.hero = nil
+herobot.brain.goldTreshold = 0
 herobot.brain.skills = {}
 herobot.teamBrain = nil
 
@@ -21,6 +22,13 @@ function herobot:onpickframe()
   end
 end
 
+local function ShouldBuy()
+  return herobot.brain.hero:CanAccessStash() and
+  herobot.brain.goldTreshold and
+  herobot:GetGold() and
+  herobot.brain.goldTreshold < herobot:GetGold()
+end
+
 function herobot:onthink(tGameVariables)
   if not self.core.initialized then
     self:CoreInitialize()
@@ -29,11 +37,14 @@ function herobot:onthink(tGameVariables)
     self:BrainInitialize(tGameVariables)
   end
   self.chat:ProcessChat()
-  if self:IsDead() then
-    return
-  end
   if self.SkillBuild then
     self:SkillBuild()
+  end
+  if ShouldBuy() then
+    self:PerformShop()
+  end
+  if self:IsDead() then
+    return
   end
   self:onthinkCustom(tGameVariables)
 end
@@ -90,4 +101,7 @@ function herobot:SkillBuildWhatNext()
   else
     return self.brain.skills.abilAttributeBoost
   end
+end
+
+function herobot:PerformShop()
 end
