@@ -11,4 +11,9 @@ team.name = 'Team Berberi'
 runfile 'bots/core_teambot.lua'
 
 function team:Initialize()
+  teambot.onthink = team.onthink
+end
+
+function team:onthink(tGameVariables)
+  --Echo(team.name..' is thinking')
 end

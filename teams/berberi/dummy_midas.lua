@@ -1,11 +1,11 @@
 local _G = getfenv(0)
-local object = _G.object
+local herobot = _G.object
 
-object.heroName = 'Hero_Midas'
+herobot.heroName = 'Hero_Midas'
 
 runfile 'bots/core_herobot.lua'
 
-function object:SkillBuildWhatNext()
+function herobot:SkillBuildWhatNext()
   if self.brain.skills.abilE:GetLevel() < 1 then
     return self.brain.skills.abilE
   elseif self.brain.skills.abilW:GetLevel() < 1 then
@@ -22,5 +22,14 @@ function object:SkillBuildWhatNext()
     return self.brain.skills.abilE
   else
     return self.brain.skills.abilAttributeBoost
+  end
+end
+
+local nextChat = HoN.GetGameTime() + 1000
+
+function herobot:onthinkCustom(tGameVariables)
+  if nextChat < HoN.GetGameTime() then
+    herobot.chat:AllChat("I gonna kill ya!")
+    nextChat = nextChat + 100000
   end
 end

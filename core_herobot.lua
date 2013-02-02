@@ -1,25 +1,27 @@
 local _G = getfenv(0)
-local object = _G.object
+local herobot = _G.object
 
-object.core = {}
-object.core.initialized = false
-object.core.myTeam = 0
-object.core.enemyTeam = 0
+runfile 'bots/chat.lua'
 
-object.brain = {}
-object.brain.initialized = false
-object.brain.hero = nil
-object.brain.skills = {}
-object.teamBrain = nil
+herobot.core = {}
+herobot.core.initialized = false
+herobot.core.myTeam = 0
+herobot.core.enemyTeam = 0
 
-function object:onpickframe()
+herobot.brain = {}
+herobot.brain.initialized = false
+herobot.brain.hero = nil
+herobot.brain.skills = {}
+herobot.teamBrain = nil
+
+function herobot:onpickframe()
   if self:CanSelectHero(self.heroName) then
     self:SelectHero(self.heroName)
     self:Ready()
   end
 end
 
-function object:onthink(tGameVariables)
+function herobot:onthink(tGameVariables)
   if not self.core.initialized then
     self:CoreInitialize()
   end
@@ -32,9 +34,14 @@ function object:onthink(tGameVariables)
   if self.SkillBuild then
     self:SkillBuild()
   end
+  self.chat:ProcessChat()
+  self:onthinkCustom(tGameVariables)
 end
 
-function object:CoreInitialize()
+function herobot:onthinkCustom(tGameVariables)
+end
+
+function herobot:CoreInitialize()
   self.core.myTeam = self:GetTeam()
   if self.core.myTeam == HoN.GetLegionTeam() then
     self.core.enemyTeam = HoN.GetHellbourneTeam()
@@ -44,17 +51,17 @@ function object:CoreInitialize()
   self.core.initialized = true
 end
 
-function object:BrainInitialize(tGameVariables)
-  self.brain.hero = object:GetHeroUnit()
+function herobot:BrainInitialize(tGameVariables)
+  self.brain.hero = herobot:GetHeroUnit()
   self.teamBrain = HoN.GetTeamBotBrain()
   self.brain.initialized = true
 end
 
-function object:IsDead()
+function herobot:IsDead()
   return self.brain.hero:GetHealth() <= 0
 end
 
-function object:SkillBuild()
+function herobot:SkillBuild()
   if self.brain.skills.abilQ == nil then
     self.brain.skills.abilQ = self.brain.hero:GetAbility(0)
     self.brain.skills.abilW = self.brain.hero:GetAbility(1)
@@ -69,10 +76,9 @@ function object:SkillBuild()
 
   local skill = self:SkillBuildWhatNext()
   skill:LevelUp()
-
 end
 
-function object:SkillBuildWhatNext()
+function herobot:SkillBuildWhatNext()
   if self.brain.skills.abilQ:CanLevelUp() then
     return self.brain.skills.abilQ
   elseif self.brain.skills.abilW:CanLevelUp() then
