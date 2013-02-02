@@ -28,13 +28,13 @@ function herobot:onthink(tGameVariables)
   if not self.brain.initialized or self.brain.hero == nil then
     self:BrainInitialize(tGameVariables)
   end
+  self.chat:ProcessChat()
   if self:IsDead() then
     return
   end
   if self.SkillBuild then
     self:SkillBuild()
   end
-  self.chat:ProcessChat()
   self:onthinkCustom(tGameVariables)
 end
 
