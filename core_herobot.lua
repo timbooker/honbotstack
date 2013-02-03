@@ -2,6 +2,7 @@ local _G = getfenv(0)
 local herobot = _G.object
 
 runfile 'bots/tournament_options.lua'
+runfile 'bots/basic_metadata.lua'
 
 runfile 'bots/chat.lua'
 
@@ -15,6 +16,7 @@ herobot.brain.initialized = false
 herobot.brain.hero = nil
 herobot.brain.goldTreshold = 0
 herobot.brain.skills = {}
+herobot.brain.myLane = nil
 herobot.teamBrain = nil
 
 function herobot:onpickframe()
@@ -32,6 +34,9 @@ local function ShouldBuy()
 end
 
 function herobot:onthink(tGameVariables)
+  if not self.metadata.initialized then
+    self.metadata:Initialize()
+  end
   if not self.core.initialized then
     self:CoreInitialize()
   end

@@ -4,6 +4,7 @@ local herobot = _G.object
 herobot.heroName = 'Hero_Midas'
 
 runfile 'bots/core_herobot.lua'
+runfile 'bots/drawings.lua'
 
 local print, tostring = _G.print, _G.tostring
 
@@ -39,12 +40,16 @@ local function printInventory(inventory)
     end
   end
 end
-
 function herobot:onthinkCustom(tGameVariables)
+  if not self.brain.myLane then
+    self.brain.myLane = self.metadata:GetMiddleLane()
+  end
   if nextChat < HoN.GetGameTime() then
     herobot.chat:AllChat("I gonna kill ya!")
     nextChat = nextChat + 100000
   end
+  self:MoveToCreeps()
+  self:PrintStates()
 end
 
 local inventoryDebugPrint = HoN.GetGameTime() + 1000
@@ -52,11 +57,69 @@ local tpStone = HoN.GetItemDefinition("Item_HomecomingStone")
 
 function herobot:PerformShop()
   if inventoryDebugPrint < HoN.GetGameTime() then
-    self.brain.hero:PurchaseRemaining(tpStone)
+    self.teamBrain.courier:PurchaseRemaining(tpStone)
+    local invTps = self.brain.hero:FindItemInInventory(tpStone:GetName())
+    if invTps then
+      Echo(tostring(#invTps))
+    end
+    if #invTps > 0 then
+      Echo(tostring(self.brain.hero:CanAccess(invTps[1])))
+    end
     local inventory = self.brain.hero:GetInventory(true)
     printInventory(inventory)
     inventoryDebugPrint = inventoryDebugPrint + 5000
     self.brain.goldTreshold = self.brain.goldTreshold + 100
     Echo("My current treshold: "..tostring(self.brain.goldTreshold))
+  end
+end
+
+function herobot:MoveToCreeps()
+  local creepsInPosition = self:GetCreepPosOnMyLane()
+  DrawXPosition(creepsInPosition)
+  local myPos = self.brain.hero:GetPosition()
+  local path = BotMetaData.FindPath(myPos, creepsInPosition)
+  local nextPos = path[1]:GetPosition()
+  if #path > 1 then
+    local vecMeToFirst = nextPos - myPos
+    local vecFirstToSecond = path[2]:GetPosition() - nextPos
+    if Vector3.Dot(vecMeToFirst, vecFirstToSecond) < 0 then
+      nextPos = path[2]:GetPosition()
+    end
+  end
+  if Vector3.Distance2DSq(nextPos, myPos) < 200*200 then
+    if path[3] then
+      nextPos = path[3]:GetPosition()
+    end
+  end
+
+  DrawXPosition(nextPos, "yellow")
+  self:OrderPosition(self.brain.hero, "Move", nextPos)
+end
+
+function herobot:GetCreepPosOnMyLane()
+  local lane = self.brain.myLane
+  if not lane or #lane < 1 then
+    Echo('No lane')
+    return nil
+  end
+  return self.teamBrain:GetFrontOfCreepWavePosition(lane.laneName)
+end
+
+function herobot:PrintStates()
+  local unit = self.brain.hero
+  local behavior = unit:GetBehavior()
+  if behavior then
+    if behavior:IsIdle() then
+      Echo("I'm idling")
+    end
+    if behavior:IsTraveling() then
+      Echo("I'm traveling")
+    end
+    if behavior:GetMoving() then
+      Echo("I'm moving")
+    end
+    if behavior:IsForced() then
+      Echo("I'm forced")
+    end
   end
 end
