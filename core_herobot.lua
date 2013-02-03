@@ -1,6 +1,8 @@
 local _G = getfenv(0)
 local herobot = _G.object
 
+runfile 'bots/tournament_options.lua'
+
 runfile 'bots/chat.lua'
 
 herobot.core = {}

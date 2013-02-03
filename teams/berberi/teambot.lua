@@ -14,6 +14,7 @@ end
 function teambot:onthink(tGameVariables)
   --Echo(team.name..' is thinking')
   if not lol then
+    Echo(tostring(teambot.Is1v1()))
     local units = allUnits()
     Echo("Units: "..#units)
     for key, unit in pairs(units) do

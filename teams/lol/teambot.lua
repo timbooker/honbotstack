@@ -5,4 +5,4 @@ teambot.name = 'Team LOL'
 
 runfile 'bots/core_teambot.lua'
 
-teambot:UseOriginal()
+teambot.UseOriginal()
