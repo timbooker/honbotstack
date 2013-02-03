@@ -63,13 +63,18 @@ function herobot:PerformShop()
       Echo(tostring(#invTps))
     end
     if #invTps > 0 then
-      Echo(tostring(self.brain.hero:CanAccess(invTps[1])))
+      local tp = invTps[1]
+      Echo("courier can access: "..tostring(self.teamBrain.courier:CanAccess(tp)))
+      Echo("Slot: "..tostring(tp:GetSlot()))
+      self.teamBrain.courier:SwapItems(1, tp:GetSlot())
     end
     local inventory = self.brain.hero:GetInventory(true)
     printInventory(inventory)
+    local inventory = self.teamBrain.courier:GetInventory(true)
+    printInventory(inventory)
     inventoryDebugPrint = inventoryDebugPrint + 5000
-    self.brain.goldTreshold = self.brain.goldTreshold + 100
-    Echo("My current treshold: "..tostring(self.brain.goldTreshold))
+    --self.brain.goldTreshold = self.brain.goldTreshold + 100
+    --Echo("My current treshold: "..tostring(self.brain.goldTreshold))
   end
 end
 
@@ -109,17 +114,6 @@ function herobot:PrintStates()
   local unit = self.brain.hero
   local behavior = unit:GetBehavior()
   if behavior then
-    if behavior:IsIdle() then
-      Echo("I'm idling")
-    end
-    if behavior:IsTraveling() then
-      Echo("I'm traveling")
-    end
-    if behavior:GetMoving() then
-      Echo("I'm moving")
-    end
-    if behavior:IsForced() then
-      Echo("I'm forced")
-    end
+    Echo(behavior:GetType())
   end
 end

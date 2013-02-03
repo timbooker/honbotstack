@@ -27,8 +27,7 @@ function herobot:onpickframe()
 end
 
 local function ShouldBuy()
-  return herobot.brain.hero:CanAccessStash() and
-  herobot.brain.goldTreshold and
+  return herobot.brain.goldTreshold and
   herobot:GetGold() and
   herobot.brain.goldTreshold < herobot:GetGold()
 end
