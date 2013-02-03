@@ -1,25 +1,32 @@
 local _G = getfenv(0)
 local teambot = _G.object
 
-runfile "bots/teams/berberi/teambot.lua"
-runfile "bots/teams/lol/teambot.lua"
+local legionTeamCvar = Cvar.GetCvar("teambotmanager_legion")
+local legionTeam = nil
+local hellbourneTeamCvar = Cvar.GetCvar("teambotmanager_hellbourne")
+local hellbourneTeam = nil
+
+if legionTeamCvar then
+  legionTeam = legionTeamCvar:GetString()
+end
+if hellbourneTeamCvar then
+  hellbourneTeam = hellbourneTeamCvar:GetString()
+end
 
 local function IsLegion()
   return teambot:GetTeam() == 1
 end
 
-local legionTeam = teambot.teams.team_berberi
-local hellbourneTeam = teambot.teams.team_lol
-
-teambot.team = {}
-
-if IsLegion() then
-  teambot.team = legionTeam
-else
-  teambot.team = hellbourneTeam
+local function RunTeam(teamName)
+  if teamName and teamName ~= "" then
+    runfile ("bots/teams/"..teamName.."/teambot.lua")
+  else
+    runfile "bots/teambot/teambotbrain.lua"
+  end
 end
 
-teambot.teamID = teambot:GetTeam()
-teambot.myName = teambot.team.name
-
-teambot.team:Initialize()
+if IsLegion() then
+  RunTeam(legionTeam)
+else
+  RunTeam(hellbourneTeam)
+end

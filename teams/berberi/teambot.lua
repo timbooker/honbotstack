@@ -1,19 +1,24 @@
 local _G = getfenv(0)
 local teambot = _G.object
 
-teambot.teams = teambot.teams or {}
-
-teambot.teams.team_berberi = {}
-local team = teambot.teams.team_berberi
-
-team.name = 'Team Berberi'
+teambot.name = 'Team Berberi'
 
 runfile 'bots/core_teambot.lua'
 
-function team:Initialize()
-  teambot.onthink = team.onthink
+local lol = false
+
+local function allUnits()
+  return HoN.GetUnitsInRadius(Vector3.Create(), 99999, 0)
 end
 
-function team:onthink(tGameVariables)
+function teambot:onthink(tGameVariables)
   --Echo(team.name..' is thinking')
+  if not lol then
+    local units = allUnits()
+    Echo("Units: "..#units)
+    for key, unit in pairs(units) do
+      Echo(unit:GetTypeName())
+    end
+    lol = true
+  end
 end
