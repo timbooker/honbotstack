@@ -83,19 +83,21 @@ function herobot:MoveToCreeps()
   DrawXPosition(creepsInPosition)
   local myPos = self.brain.hero:GetPosition()
   local path = BotMetaData.FindPath(myPos, creepsInPosition)
-  local nextPos = path[1]:GetPosition()
+  local nextIndex = 1
   if #path > 1 then
-    local vecMeToFirst = nextPos - myPos
-    local vecFirstToSecond = path[2]:GetPosition() - nextPos
+    local vecMeToFirst = path[1]:GetPosition() - myPos
+    local vecFirstToSecond = path[2]:GetPosition() - path[1]:GetPosition()
     if Vector3.Dot(vecMeToFirst, vecFirstToSecond) < 0 then
-      nextPos = path[2]:GetPosition()
+      nextIndex = 2
     end
   end
-  if Vector3.Distance2DSq(nextPos, myPos) < 200*200 then
-    if path[3] then
-      nextPos = path[3]:GetPosition()
+  if Vector3.Distance2DSq(path[nextIndex]:GetPosition(), myPos) < 300*300 then
+    if path[nextIndex + 1] then
+      nextIndex = nextIndex + 1
     end
   end
+
+  local nextPos = path[nextIndex]:GetPosition()
 
   DrawXPosition(nextPos, "yellow")
   self:OrderPosition(self.brain.hero, "Move", nextPos)
