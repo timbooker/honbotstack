@@ -59,14 +59,20 @@ function herobot:PerformShop()
   if inventoryDebugPrint < HoN.GetGameTime() then
     self.teamBrain.courier:PurchaseRemaining(tpStone)
     local invTps = self.brain.hero:FindItemInInventory(tpStone:GetName())
+    local cinvTps = self.teamBrain.courier:FindItemInInventory(tpStone:GetName())
+    if cinvTps then
+      Echo(tostring(#cinvTps))
+    end
     if invTps then
       Echo(tostring(#invTps))
     end
     if #invTps > 0 then
       local tp = invTps[1]
       Echo("courier can access: "..tostring(self.teamBrain.courier:CanAccess(tp)))
-      Echo("Slot: "..tostring(tp:GetSlot()))
-      self.teamBrain.courier:SwapItems(1, tp:GetSlot())
+    end
+    if #cinvTps > 0 then
+      local tp = cinvTps[1]
+      Echo("courier can access: "..tostring(self.teamBrain.courier:CanAccess(tp)))
     end
     local inventory = self.brain.hero:GetInventory(true)
     printInventory(inventory)
