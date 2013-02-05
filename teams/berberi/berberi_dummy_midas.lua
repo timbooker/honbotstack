@@ -32,6 +32,19 @@ end
 
 local nextChat = HoN.GetGameTime() + 1000
 
+local function courierFlies(courier)
+  return courier:GetTypeName() == "Pet_FlyngCourier"
+end
+
+local function upgCourier(bot)
+  local courier = bot.teamBrain.courier
+  local upgAbil = courier:GetAbility(0)
+  if upgAbil:CanActivate() then
+    Echo(courier:GetTypeName())
+    bot:OrderAbility(upgAbil)
+  end
+end
+
 function herobot:onthinkCustom(tGameVariables)
   if not self.brain.myLane then
     self.brain.myLane = self.metadata:GetMiddleLane()
@@ -40,9 +53,13 @@ function herobot:onthinkCustom(tGameVariables)
     herobot.chat:AllChat("I gonna kill ya!")
     nextChat = nextChat + 100000
   end
+  if not courierFlies(self.teamBrain.courier) then
+    upgCourier(self)
+  end
   if self:ProcessingStash() then
     return
   end
+  self:DeliverItems()
   self:MoveToCreeps()
   self:PrintStates()
   self:Harass()
@@ -85,22 +102,8 @@ local tpStone = HoN.GetItemDefinition("Item_HomecomingStone")
 function herobot:PerformShop()
   if inventoryDebugPrint < HoN.GetGameTime() then
     self.teamBrain.courier:PurchaseRemaining(tpStone)
-    local invTps = self.brain.hero:FindItemInInventory(tpStone:GetName())
-    local cinvTps = self.teamBrain.courier:FindItemInInventory(tpStone:GetName())
-    if cinvTps then
-      Echo(tostring(#cinvTps))
-    end
-    if invTps then
-      Echo(tostring(#invTps))
-    end
-    if #invTps > 0 then
-      local tp = invTps[1]
-      Echo("courier can access: "..tostring(self.teamBrain.courier:CanAccess(tp)))
-    end
-    if #cinvTps > 0 then
-      local tp = cinvTps[1]
-      Echo("courier can access: "..tostring(self.teamBrain.courier:CanAccess(tp)))
-    end
+    self.teamBrain.courier:SwapItems(1,7)
+    self.teamBrain.courier:SwapItems(7,1)
     local inventory = self.brain.hero:GetInventory(true)
     PrintInventory(inventory)
     local inventory = self.teamBrain.courier:GetInventory(true)
@@ -282,4 +285,27 @@ function herobot:ProcessingStash()
     end
   end
   return hasInStash(items_slot) and moveItemsFromStash(hero, items_slot)
+end
+
+function herobot:DeliverItems()
+  local courier = self.teamBrain.courier
+  local inv = courier:GetInventory()
+  local deliver = courier:GetAbility(2)
+  local backToPool = courier:GetAbility(3)
+  local beha = courier:GetBehavior()
+  if beha then
+    Echo("courier beha"..beha:GetType())
+    Echo("idling? "..tostring(beha:IsIdle()))
+    Echo("traveling ? "..tostring(beha:IsTraveling()))
+    if beha:IsTraveling() or not beha:IsIdle() then
+      return
+    end
+  end
+  if not InventoryIsEmpty(inv) then
+    Echo("deliver")
+    self:OrderAbility(deliver)
+  else
+    Echo("go back")
+    self:OrderAbility(backToPool)
+  end
 end

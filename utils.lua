@@ -14,3 +14,7 @@ function PrintInventory(inventory)
     end
   end
 end
+
+function InventoryIsEmpty(inventory)
+  return #inventory == 0
+end
