@@ -10,22 +10,23 @@ runfile 'bots/utils.lua'
 local print, tostring = _G.print, _G.tostring
 
 function herobot:SkillBuildWhatNext()
-  if self.brain.skills.abilE:GetLevel() < 1 then
-    return self.brain.skills.abilE
-  elseif self.brain.skills.abilW:GetLevel() < 1 then
-    return self.brain.skills.abilW
-  elseif self.brain.skills.abilQ:GetLevel() < 1 then
-    return self.brain.skills.abilQ
-  elseif self.brain.skills.abilR:CanLevelUp() then
-    return self.brain.skills.abilR
-  elseif self.brain.skills.abilW:CanLevelUp() then
-    return self.brain.skills.abilW
-  elseif self.brain.skills.abilQ:CanLevelUp() then
-    return self.brain.skills.abilQ
-  elseif self.brain.skills.abilE:CanLevelUp() then
-    return self.brain.skills.abilE
+  local skills = self.brain.skills
+  if skills.abilE:GetLevel() < 1 then
+    return skills.abilE
+  elseif skills.abilW:GetLevel() < 1 then
+    return skills.abilW
+  elseif skills.abilQ:GetLevel() < 1 then
+    return skills.abilQ
+  elseif skills.abilR:CanLevelUp() then
+    return skills.abilR
+  elseif skills.abilW:CanLevelUp() then
+    return skills.abilW
+  elseif skills.abilQ:CanLevelUp() then
+    return skills.abilQ
+  elseif skills.abilE:CanLevelUp() then
+    return skills.abilE
   else
-    return self.brain.skills.abilAttributeBoost
+    return skills.abilAttributeBoost
   end
 end
 
@@ -39,29 +40,25 @@ function herobot:onthinkCustom(tGameVariables)
     herobot.chat:AllChat("I gonna kill ya!")
     nextChat = nextChat + 100000
   end
+  if self:ProcessingStash() then
+    return
+  end
   self:MoveToCreeps()
   self:PrintStates()
   self:Harass()
 end
 
 local function giveAll(bot, target)
-  Echo("Giving all")
-  local beha = bot.brain.hero:GetBehavior()
-  if beha then
-    Echo("Beha in use: "..beha:GetType())
-    if beha:GetType() == "Attack" then
-      Echo("not giving")
-      return
-    end
-  end
   local skills = bot.brain.skills
   if skills.abilW:CanActivate() then
     bot:OrderAbilityPosition(skills.abilW, target:GetPosition())
     return
-  elseif skills.abilQ:CanActivate() then
+  end
+  if skills.abilQ:CanActivate() then
     bot:OrderAbilityPosition(skills.abilQ, target:GetPosition())
     return
-  elseif skills.abilE:CanActivate() then
+  end
+  if skills.abilE:CanActivate() then
     bot:OrderAbilityPosition(skills.abilE, target:GetPosition())
     return
   end
@@ -69,6 +66,9 @@ local function giveAll(bot, target)
 end
 
 function herobot:Harass()
+  if self.brain.hero:GetLevel() < 4 then
+    return
+  end
   local enemies = self:GetLocalEnemies()
   local target = nil
   for uid, unit in pairs(enemies) do
@@ -123,6 +123,7 @@ local function lolCost(parent, current, link, original)
   local bBaseProperty  = current:GetProperty("base")
 
   local nMultiplier = 1.0
+  local nEnemyTerritoryMul = 10
   local bEnemyZone = false
   if sZoneProperty and sZoneProperty == sEnemyZone then
     bEnemyZone = true
@@ -150,6 +151,7 @@ local function lolCost(parent, current, link, original)
   return nCostToParent + nDistance * nMultiplier
 end
 function herobot:MoveToCreeps()
+  if self:EnemyCreepsNear() then return end
   local creepsInPosition = self:GetCreepPosOnMyLane()
   DrawXPosition(creepsInPosition)
   local myPos = self.brain.hero:GetPosition()
@@ -206,4 +208,78 @@ function herobot:PrintStates()
   if behavior then
     Echo(behavior:GetType())
   end
+end
+
+function herobot:EnemyCreepsNear()
+  local creeps = self:GetLocalUnitsSorted().EnemyUnits
+  for key, unit in pairs(creeps) do
+    local unitType = unit:GetTypeName()
+    if unit:IsHero() or unitType == "Creep_HellbourneMelee" or unitType == "Creep_HellbourneRanged" or unitType == "Creep_HellbourneSiege" then
+      return true
+    end
+  end
+  return false
+end
+
+local function hasInStash(items)
+  for i = 7, 12, 1 do
+    if items[i] then
+      return true
+    end
+  end
+  return false
+end
+
+local function emptySlotInBackpack(items)
+  for i = 1, 6, 1 do
+    if not items[i] then
+      return i
+    end
+  end
+  return 0
+end
+
+local function itemInStash(items)
+  for i = 7, 12, 1 do
+    if items[i] then
+      return i
+    end
+  end
+  return 0
+end
+
+local function worthyItemsInStash(items)
+  -- TODO: create worthy matcher
+  return 0, 0
+end
+
+local function moveItemsFromStash(hero, items)
+  local slotIndex = emptySlotInBackpack(items)
+  if slotIndex > 0 then
+    hero:SwapItems(slotIndex, itemInStash(items))
+    return true
+  end
+  local packIndex, stashIndex = worthyItemsInStash(items)
+  if packIndex > 0 and stashIndex > 0 then
+    hero:SwapItems(packIndex, stashIndex)
+    return true
+  else
+    return false
+  end
+end
+
+function herobot:ProcessingStash()
+  local hero = self.brain.hero
+  if not hero:CanAccessStash() then
+    return false
+  end
+  local inventory = hero:GetInventory(true)
+  local items_slot = {}
+  for i = 1, 12, 1 do
+    local item = inventory[i]
+    if item then
+      items_slot[i] = item
+    end
+  end
+  return hasInStash(items_slot) and moveItemsFromStash(hero, items_slot)
 end
