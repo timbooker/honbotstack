@@ -23,6 +23,7 @@ function teambot:AssignCourier()
   if courier then
     self.courier = courier
   else
+    self.courier = nil
     Echo("No courier :(")
   end
 end
@@ -31,7 +32,7 @@ function teambot:onthink(tGameVariables)
   if not self.metadata.initialized then
     self.metadata:Initialize()
   end
-  if not self.courier then
+  if not self.courier or not self.courier:IsValid() then
     self:AssignCourier()
   end
   self:onthinkCustom(tGameVariables)

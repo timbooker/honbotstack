@@ -42,20 +42,23 @@ function herobot:onthink(tGameVariables)
   if not self.brain.initialized or self.brain.hero == nil then
     self:BrainInitialize(tGameVariables)
   end
+  self:ProcessDefaultActions()
+  if self:IsDead() then
+    return
+  end
+  if self.onthinkCustom then
+    self:onthinkCustom(tGameVariables)
+  end
+end
+
+function herobot:ProcessDefaultActions()
   self.chat:ProcessChat()
   if self.SkillBuild then
     self:SkillBuild()
   end
-  if ShouldBuy() then
+  if ShouldBuy() and self.PerformShop then
     self:PerformShop()
   end
-  if self:IsDead() then
-    return
-  end
-  self:onthinkCustom(tGameVariables)
-end
-
-function herobot:onthinkCustom(tGameVariables)
 end
 
 function herobot:CoreInitialize()
@@ -79,12 +82,13 @@ function herobot:IsDead()
 end
 
 function herobot:SkillBuild()
-  if self.brain.skills.abilQ == nil then
+  if not self.brain.skills.abilQ then
     self.brain.skills.abilQ = self.brain.hero:GetAbility(0)
     self.brain.skills.abilW = self.brain.hero:GetAbility(1)
     self.brain.skills.abilE = self.brain.hero:GetAbility(2)
     self.brain.skills.abilR = self.brain.hero:GetAbility(3)
-    self.brain.skills.abilAttributeBoost  = self.brain.hero:GetAbility(4)
+    self.brain.skills.abilAttributeBoost = self.brain.hero:GetAbility(4)
+    self.brain.skills.abilTaunt = self.brain.hero:GetAbility(8)
   end
 
   if self.brain.hero:GetAbilityPointsAvailable() <= 0 then
@@ -109,5 +113,6 @@ function herobot:SkillBuildWhatNext()
   end
 end
 
-function herobot:PerformShop()
+function herobot:GetLocalEnemies()
+  return self:GetLocalUnitsSorted().EnemyHeroes
 end
