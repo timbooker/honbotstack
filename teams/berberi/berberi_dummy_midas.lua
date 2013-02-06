@@ -6,6 +6,7 @@ herobot.heroName = 'Hero_Midas'
 runfile 'bots/core_herobot.lua'
 runfile 'bots/utils/inventory.lua'
 runfile 'bots/utils/drawings.lua'
+runfile 'bots/utils/chat.lua'
 
 local print, tostring = _G.print, _G.tostring
 
@@ -33,6 +34,7 @@ end
 local nextChat = HoN.GetGameTime() + 1000
 
 local function courierFlies(courier)
+  if true then return true end
   return courier:GetTypeName() == "Pet_FlyngCourier"
 end
 
@@ -50,7 +52,7 @@ function herobot:onthinkCustom(tGameVariables)
     self.brain.myLane = self.metadata:GetMiddleLane()
   end
   if nextChat < HoN.GetGameTime() then
-    herobot.chat:AllChat("I gonna kill ya!")
+    AllChat(self, "I gonna kill ya!")
     nextChat = nextChat + 100000
   end
   if not courierFlies(self.teamBrain.courier) then
@@ -59,7 +61,7 @@ function herobot:onthinkCustom(tGameVariables)
   if self:ProcessingStash() then
     return
   end
-  self:DeliverItems()
+  --self:DeliverItems()
   self:MoveToCreeps()
   self:PrintStates()
   self:Harass()
@@ -100,6 +102,7 @@ local inventoryDebugPrint = HoN.GetGameTime() + 1000
 local tpStone = HoN.GetItemDefinition("Item_HomecomingStone")
 
 function herobot:PerformShop()
+  if true then return end
   if inventoryDebugPrint < HoN.GetGameTime() then
     self.teamBrain.courier:PurchaseRemaining(tpStone)
     self.teamBrain.courier:SwapItems(1,7)

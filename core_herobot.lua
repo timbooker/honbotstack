@@ -4,7 +4,7 @@ local herobot = _G.object
 runfile 'bots/tournament_options.lua'
 runfile 'bots/basic_metadata.lua'
 
-runfile 'bots/chat.lua'
+runfile 'bots/utils/chat.lua'
 
 herobot.core = {}
 herobot.core.initialized = false
@@ -42,6 +42,9 @@ function herobot:onthink(tGameVariables)
   if not self.brain.initialized or self.brain.hero == nil then
     self:BrainInitialize(tGameVariables)
   end
+  if not IsChatInitialized(self) then
+    InitializeChat(self)
+  end
   self:ProcessDefaultActions()
   if self:IsDead() then
     return
@@ -52,7 +55,7 @@ function herobot:onthink(tGameVariables)
 end
 
 function herobot:ProcessDefaultActions()
-  self.chat:ProcessChat()
+  ProcessChat(self)
   if self.SkillBuild then
     self:SkillBuild()
   end

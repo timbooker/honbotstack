@@ -1,10 +1,6 @@
 local _G = getfenv(0)
-local herobot = _G.object
 
 local ipairs, pairs, tinsert, tsort = _G.ipairs, _G.pairs, _G.table.insert, _G.table.sort
-
-herobot.chat = herobot.chat or {}
-herobot.chat.messages = herobot.chat.messages or {}
 
 local function OutgoingMessages(messages)
   local currentTime = HoN.GetGameTime()
@@ -37,25 +33,33 @@ local function SendMessages(bot, messages)
   end
 end
 
-function herobot.chat:ProcessChat()
-  local messages = OutgoingMessages(self.messages)
-  SortMessages(messages)
-  SendMessages(herobot, messages)
+function IsChatInitialized(bot)
+  return not not bot.messages
 end
 
-local function Chat(chat, message, delay, isAll)
+function InitializeChat(bot)
+  bot.messages = bot.messages or {}
+end
+
+function ProcessChat(bot)
+  local messages = OutgoingMessages(bot.messages)
+  SortMessages(messages)
+  SendMessages(bot, messages)
+end
+
+local function Chat(bot, message, delay, isAll)
   delay = delay or 0
   if message == nil or message == "" then
     return
   end
   local currentTime = HoN.GetGameTime()
-  tinsert(chat.messages, {(currentTime + delay), isAll, message})
+  tinsert(bot.messages, {(currentTime + delay), isAll, message})
 end
 
-function herobot.chat:AllChat(message, delay)
-  return Chat(self, message, delay, true)
+function AllChat(bot, message, delay)
+  return Chat(bot, message, delay, true)
 end
 
-function herobot.chat:TeamChat(message, delay)
-  return Chat(self, message, delay, false)
+function TeamChat(bot, message, delay)
+  return Chat(bot, message, delay, false)
 end
