@@ -73,7 +73,6 @@ end
 function CourierDeliver()
   local functions = {}
   functions.IsNearStash = IsNearStash
-  functions.CourierHasItems = CourierHasItems
   functions.MoveItemsToCourier = MoveItemsToCourier
   functions.HasDelivered = HasDelivered
   return functions
