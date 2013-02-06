@@ -13,9 +13,56 @@ runfile 'bots/utils/courier_upgrader.lua'
 local CourierDeliverFns = CourierDeliver()
 local CourierUpgraderFns = CourierUpgrader()
 
-local print, tostring = _G.print, _G.tostring
+local print, tostring, tremove = _G.print, _G.tostring, _G.table.remove
 
-herobot.brain.goldTreshold = 200
+herobot.brain.goldTreshold = 0
+
+local itemsToBuy = {
+  'Item_MarkOfTheNovice',
+  'Item_PretendersCrown',
+  'Item_RunesOfTheBlight',
+  'Item_ManaPotion',
+  'Item_FlamingEye',
+  'Item_Intelligence5',
+  'Item_Marchers',
+  'Item_Striders',
+  'Item_BrainOfMaliken',
+  'Item_Strength5',
+  'Item_Astrolabe',
+  'Item_NomesWisdom',
+  'Item_SpellShards',
+  'Item_SpellShards',
+  'Item_SpellShards',
+  'Item_PostHaste',
+  'Item_Regen',
+  'Item_Confluence',
+  'Item_Protect',
+  'Item_Lightbrand',
+  'Item_Confluence',
+  'Item_GrimoireOfPower'
+}
+
+local tpStone = HoN.GetItemDefinition("Item_HomecomingStone")
+local function getNextItemToBuy()
+  return HoN.GetItemDefinition(itemsToBuy[1]) or tpStone
+end
+local function updateTreshold(bot)
+  local nextItem = getNextItemToBuy()
+  bot.brain.goldTreshold = nextItem:GetCost()
+end
+
+function herobot:PerformShop()
+  local hero = self.brain.hero
+  if #itemsToBuy == 0 then return end
+  local nextItem = getNextItemToBuy()
+  local itemCost = nextItem:GetCost()
+  if itemCost <= self:GetGold() then
+    hero:PurchaseRemaining(nextItem)
+    tremove(itemsToBuy, 1)
+  end
+  updateTreshold(self)
+  Echo("My current treshold: "..tostring(self.brain.goldTreshold))
+end
 
 function herobot:SkillBuildWhatNext()
   local skills = self.brain.skills
@@ -90,15 +137,6 @@ function herobot:Harass()
     AllChat(self, "I gonna kill ya!")
     giveAll(self, target)
   end
-end
-
-local tpStone = HoN.GetItemDefinition("Item_HomecomingStone")
-
-function herobot:PerformShop()
-  local hero = self.brain.hero
-  hero:PurchaseRemaining(tpStone)
-  --self.brain.goldTreshold = self.brain.goldTreshold + 100
-  Echo("My current treshold: "..tostring(self.brain.goldTreshold))
 end
 
 local function lolCost(parent, current, link, original)
