@@ -15,6 +15,13 @@ function PrintInventory(inventory)
   end
 end
 
-function InventoryIsEmpty(inventory)
-  return #inventory == 0
+function HasItemsInInventory(unit)
+  local inventory = unit:GetInventory()
+  return #inventory > 0
+end
+
+function HasItemsInStash(unit)
+  local inventory_with_stash = unit:GetInventory(true)
+  local inventory = unit:GetInventory()
+  return #inventory_with_stash - #inventory > 0
 end

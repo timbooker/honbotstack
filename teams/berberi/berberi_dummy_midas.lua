@@ -7,8 +7,13 @@ runfile 'bots/core_herobot.lua'
 runfile 'bots/utils/inventory.lua'
 runfile 'bots/utils/drawings.lua'
 runfile 'bots/utils/chat.lua'
+runfile 'bots/utils/courier_deliver.lua'
+
+local CourierDeliverFns = CourierDeliver()
 
 local print, tostring = _G.print, _G.tostring
+
+herobot.brain.goldTreshold = 200
 
 function herobot:SkillBuildWhatNext()
   local skills = self.brain.skills
@@ -61,10 +66,10 @@ function herobot:onthinkCustom(tGameVariables)
   if self:ProcessingStash() then
     return
   end
-  --self:DeliverItems()
   self:MoveToCreeps()
   self:PrintStates()
   self:Harass()
+  CourierDeliverFns.HasDelivered(self, self.teamBrain.courier)
 end
 
 local function giveAll(bot, target)
@@ -98,23 +103,13 @@ function herobot:Harass()
   end
 end
 
-local inventoryDebugPrint = HoN.GetGameTime() + 1000
 local tpStone = HoN.GetItemDefinition("Item_HomecomingStone")
 
 function herobot:PerformShop()
-  if true then return end
-  if inventoryDebugPrint < HoN.GetGameTime() then
-    self.teamBrain.courier:PurchaseRemaining(tpStone)
-    self.teamBrain.courier:SwapItems(1,7)
-    self.teamBrain.courier:SwapItems(7,1)
-    local inventory = self.brain.hero:GetInventory(true)
-    PrintInventory(inventory)
-    local inventory = self.teamBrain.courier:GetInventory(true)
-    PrintInventory(inventory)
-    inventoryDebugPrint = inventoryDebugPrint + 5000
-    --self.brain.goldTreshold = self.brain.goldTreshold + 100
-    --Echo("My current treshold: "..tostring(self.brain.goldTreshold))
-  end
+  local hero = self.brain.hero
+  hero:PurchaseRemaining(tpStone)
+  --self.brain.goldTreshold = self.brain.goldTreshold + 100
+  Echo("My current treshold: "..tostring(self.brain.goldTreshold))
 end
 
 local function lolCost(parent, current, link, original)
@@ -274,11 +269,7 @@ local function moveItemsFromStash(hero, items)
   end
 end
 
-function herobot:ProcessingStash()
-  local hero = self.brain.hero
-  if not hero:CanAccessStash() then
-    return false
-  end
+local function MoveItemsFromStashToHero(hero)
   local inventory = hero:GetInventory(true)
   local items_slot = {}
   for i = 1, 12, 1 do
@@ -290,25 +281,13 @@ function herobot:ProcessingStash()
   return hasInStash(items_slot) and moveItemsFromStash(hero, items_slot)
 end
 
-function herobot:DeliverItems()
+function herobot:ProcessingStash()
+  local hero = self.brain.hero
   local courier = self.teamBrain.courier
-  local inv = courier:GetInventory()
-  local deliver = courier:GetAbility(2)
-  local backToPool = courier:GetAbility(3)
-  local beha = courier:GetBehavior()
-  if beha then
-    Echo("courier beha"..beha:GetType())
-    Echo("idling? "..tostring(beha:IsIdle()))
-    Echo("traveling ? "..tostring(beha:IsTraveling()))
-    if beha:IsTraveling() or not beha:IsIdle() then
-      return
-    end
+  if hero:CanAccessStash() then
+    return MoveItemsFromStashToHero(hero)
+  elseif CourierDeliverFns.IsNearStash(courier) then
+    CourierDeliverFns.MoveItemsToCourier(hero, courier)
   end
-  if not InventoryIsEmpty(inv) then
-    Echo("deliver")
-    self:OrderAbility(deliver)
-  else
-    Echo("go back")
-    self:OrderAbility(backToPool)
-  end
+  return false
 end
