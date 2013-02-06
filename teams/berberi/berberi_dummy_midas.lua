@@ -10,6 +10,7 @@ runfile 'bots/utils/chat.lua'
 runfile 'bots/utils/courier_deliver.lua'
 runfile 'bots/utils/courier_upgrader.lua'
 
+local ChatFns = ChatUtils()
 local DrawingsFns = Drawings()
 local CourierDeliverFns = CourierDeliver()
 local CourierUpgraderFns = CourierUpgrader()
@@ -135,7 +136,7 @@ function herobot:Harass()
     target = unit
   end
   if target then
-    AllChat(self, "I gonna kill ya!")
+    ChatFns.AllChat(self, "I gonna kill ya!")
     giveAll(self, target)
   end
 end

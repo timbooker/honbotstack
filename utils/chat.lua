@@ -33,15 +33,15 @@ local function SendMessages(bot, messages)
   end
 end
 
-function IsChatInitialized(bot)
+local function IsChatInitialized(bot)
   return not not bot.messages
 end
 
-function InitializeChat(bot)
+local function InitializeChat(bot)
   bot.messages = bot.messages or {}
 end
 
-function ProcessChat(bot)
+local function ProcessChat(bot)
   local messages = OutgoingMessages(bot.messages)
   SortMessages(messages)
   SendMessages(bot, messages)
@@ -56,10 +56,20 @@ local function Chat(bot, message, delay, isAll)
   tinsert(bot.messages, {(currentTime + delay), isAll, message})
 end
 
-function AllChat(bot, message, delay)
+local function AllChat(bot, message, delay)
   return Chat(bot, message, delay, true)
 end
 
-function TeamChat(bot, message, delay)
+local function TeamChat(bot, message, delay)
   return Chat(bot, message, delay, false)
+end
+
+function ChatUtils()
+  local functions = {}
+  functions.IsChatInitialized = IsChatInitialized
+  functions.InitializeChat = InitializeChat
+  functions.ProcessChat = ProcessChat
+  functions.AllChat = AllChat
+  functions.TeamChat = TeamChat
+  return functions
 end

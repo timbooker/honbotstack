@@ -6,6 +6,8 @@ runfile 'bots/basic_metadata.lua'
 
 runfile 'bots/utils/chat.lua'
 
+local ChatFns = ChatUtils()
+
 herobot.core = {}
 herobot.core.initialized = false
 herobot.core.myTeam = 0
@@ -42,10 +44,10 @@ function herobot:onthink(tGameVariables)
   if not self.brain.initialized or self.brain.hero == nil then
     self:BrainInitialize(tGameVariables)
   end
-  if not IsChatInitialized(self) then
-    InitializeChat(self)
+  if not ChatFns.IsChatInitialized(self) then
+    ChatFns.InitializeChat(self)
   end
-  ProcessChat(self)
+  ChatFns.ProcessChat(self)
   if self.SkillBuild then
     self:SkillBuild()
   end
