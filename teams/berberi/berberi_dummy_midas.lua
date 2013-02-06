@@ -36,8 +36,6 @@ function herobot:SkillBuildWhatNext()
   end
 end
 
-local nextChat = HoN.GetGameTime() + 1000
-
 local function courierFlies(courier)
   if true then return true end
   return courier:GetTypeName() == "Pet_FlyngCourier"
@@ -55,10 +53,6 @@ end
 function herobot:onthinkCustom(tGameVariables)
   if not self.brain.myLane then
     self.brain.myLane = self.metadata:GetMiddleLane()
-  end
-  if nextChat < HoN.GetGameTime() then
-    AllChat(self, "I gonna kill ya!")
-    nextChat = nextChat + 100000
   end
   if not courierFlies(self.teamBrain.courier) then
     upgCourier(self)
@@ -104,6 +98,7 @@ function herobot:Harass()
     target = unit
   end
   if target then
+    AllChat(self, "I gonna kill ya!")
     giveAll(self, target)
   end
 end
