@@ -2,9 +2,17 @@ local _G = getfenv(0)
 
 local defaultColor = "red"
 
-function DrawLine(startPosition, endPosition, color)
+local function DrawLineOrArrow(startPosition, endPosition, color, arrow)
   if not startPosition or not endPosition then return end
-  HoN.DrawDebugLine(startPosition, endPosition, false, color or defaultColor)
+  HoN.DrawDebugLine(startPosition, endPosition, arrow or false, color or defaultColor)
+end
+
+function DrawLine(startPosition, endPosition, color)
+  DrawLineOrArrow(startPosition, endPosition, color, false)
+end
+
+function DrawArrow(startPosition, endPosition, color)
+  DrawLineOrArrow(startPosition, endPosition, color, true)
 end
 
 function DrawXPosition(position, color, size)
