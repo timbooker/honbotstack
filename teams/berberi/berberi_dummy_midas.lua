@@ -10,6 +10,7 @@ runfile 'bots/utils/chat.lua'
 runfile 'bots/utils/courier_deliver.lua'
 runfile 'bots/utils/courier_upgrader.lua'
 
+local DrawingsFns = Drawings()
 local CourierDeliverFns = CourierDeliver()
 local CourierUpgraderFns = CourierUpgrader()
 
@@ -181,7 +182,7 @@ end
 function herobot:MoveToCreeps()
   if self:EnemyCreepsNear() then return end
   local creepsInPosition = self:GetCreepPosOnMyLane()
-  DrawXPosition(creepsInPosition)
+  DrawingsFns.DrawX(creepsInPosition)
   local myPos = self.brain.hero:GetPosition()
   local path = {}
   --if self:GetTeam() == 2 then
@@ -212,7 +213,7 @@ function herobot:MoveToCreeps()
 
   local nextPos = path[nextIndex]:GetPosition()
 
-  DrawXPosition(nextPos, "yellow")
+  DrawingsFns.DrawX(nextPos, "yellow")
   --local beha = self.brain.hero:GetBehavior()
   --if beha and beha:GetType() == "Attack" then
   --  Echo("DONT MOVE")

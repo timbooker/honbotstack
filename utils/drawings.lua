@@ -7,15 +7,15 @@ local function DrawLineOrArrow(startPosition, endPosition, color, arrow)
   HoN.DrawDebugLine(startPosition, endPosition, arrow or false, color or defaultColor)
 end
 
-function DrawLine(startPosition, endPosition, color)
+local function DrawLine(startPosition, endPosition, color)
   DrawLineOrArrow(startPosition, endPosition, color, false)
 end
 
-function DrawArrow(startPosition, endPosition, color)
+local function DrawArrow(startPosition, endPosition, color)
   DrawLineOrArrow(startPosition, endPosition, color, true)
 end
 
-function DrawXPosition(position, color, size)
+local function DrawX(position, color, size)
   if not position then return end
 
   size = size or 50
@@ -24,4 +24,17 @@ function DrawXPosition(position, color, size)
 
   DrawLine(position - tl, position + tl, color)
   DrawLine(position - bl, position + bl, color)
+end
+
+local function ChangeDefaultColor(color)
+  defaultColor = color
+end
+
+function Drawings()
+  local functions = {}
+  functions.DrawLine = DrawLine
+  functions.DrawArrow = DrawArrow
+  functions.DrawX = DrawX
+  functions.ChangeDefaultColor = ChangeDefaultColor
+  return functions
 end
