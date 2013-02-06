@@ -4,8 +4,8 @@ local herobot = _G.object
 herobot.heroName = 'Hero_Midas'
 
 runfile 'bots/core_herobot.lua'
-runfile 'bots/drawings.lua'
-runfile 'bots/utils.lua'
+runfile 'bots/utils/inventory.lua'
+runfile 'bots/utils/drawings.lua'
 
 local print, tostring = _G.print, _G.tostring
 
