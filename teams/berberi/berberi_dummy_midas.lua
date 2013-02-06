@@ -8,8 +8,10 @@ runfile 'bots/utils/inventory.lua'
 runfile 'bots/utils/drawings.lua'
 runfile 'bots/utils/chat.lua'
 runfile 'bots/utils/courier_deliver.lua'
+runfile 'bots/utils/courier_upgrader.lua'
 
 local CourierDeliverFns = CourierDeliver()
+local CourierUpgraderFns = CourierUpgrader()
 
 local print, tostring = _G.print, _G.tostring
 
@@ -36,32 +38,19 @@ function herobot:SkillBuildWhatNext()
   end
 end
 
-local function courierFlies(courier)
-  if true then return true end
-  return courier:GetTypeName() == "Pet_FlyngCourier"
-end
-
-local function upgCourier(bot)
-  local courier = bot.teamBrain.courier
-  local upgAbil = courier:GetAbility(0)
-  if upgAbil:CanActivate() then
-    Echo(courier:GetTypeName())
-    bot:OrderAbility(upgAbil)
-  end
-end
-
 function herobot:onthinkCustom(tGameVariables)
+  local courier = self.teamBrain.courier
   if not self.brain.myLane then
     self.brain.myLane = self.metadata:GetMiddleLane()
-  end
-  if not courierFlies(self.teamBrain.courier) then
-    upgCourier(self)
   end
   if self:ProcessingStash() then
     return
   end
-  if self.teamBrain.courier then
-    CourierDeliverFns.HasDelivered(self, self.teamBrain.courier)
+  if courier then
+    if CourierUpgraderFns.CanUpgradeCourier(self, courier) then
+      CourierUpgraderFns.UpgradeCourier(self, courier)
+    end
+    CourierDeliverFns.HasDelivered(self, courier)
   end
   self:PrintStates()
   if self:IsDead() then
