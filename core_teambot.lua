@@ -24,7 +24,6 @@ function teambot:AssignCourier()
     self.courier = courier
   else
     self.courier = nil
-    Echo("No courier :(")
   end
 end
 

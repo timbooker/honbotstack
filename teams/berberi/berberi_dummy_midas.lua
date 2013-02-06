@@ -66,10 +66,15 @@ function herobot:onthinkCustom(tGameVariables)
   if self:ProcessingStash() then
     return
   end
-  self:MoveToCreeps()
+  if self.teamBrain.courier then
+    CourierDeliverFns.HasDelivered(self, self.teamBrain.courier)
+  end
   self:PrintStates()
+  if self:IsDead() then
+    return
+  end
+  self:MoveToCreeps()
   self:Harass()
-  CourierDeliverFns.HasDelivered(self, self.teamBrain.courier)
 end
 
 local function giveAll(bot, target)

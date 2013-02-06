@@ -47,23 +47,36 @@ end
 local function HasDelivered(bot, courier)
   bot.courierData = bot.courierData or {}
   local data = bot.courierData
-  if data.delivering then
-    if not CourierHasItems(courier) then
-      ReturnToPool(bot, courier)
-      data.delivering = false
-      data.returning = true
-    end
-  elseif data.returning then
-    if IsNearStash(courier) then
-      data.returning = false
-    end
-  elseif CourierHasItems(courier) then
+
+  local function deliver()
     DeliverItems(bot, courier)
     data.delivering = true
+    data.returning = false
+  end
+
+  local function toPool()
+    ReturnToPool(bot, courier)
+    data.delivering = false
+    data.returning = true
+  end
+
+  if data.delivering then
+    if bot:IsDead() then
+      toPool()
+    elseif not CourierHasItems(courier) then
+      toPool()
+    end
+  elseif data.returning then
+    if not bot:IsDead() and CourierHasItems(courier) then
+      deliver()
+    elseif IsNearStash(courier) then
+      data.returning = false
+    end
+  elseif CourierHasItems(courier) and not bot:IsDead() then
+    deliver()
   elseif not data.returning and not IsNearStash(courier) then
     -- Fixing crashes
-    ReturnToPool(bot, courier)
-    data.returning = true
+    toPool()
   else
     data.delivering = false
     data.returning = false

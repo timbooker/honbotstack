@@ -45,22 +45,15 @@ function herobot:onthink(tGameVariables)
   if not IsChatInitialized(self) then
     InitializeChat(self)
   end
-  self:ProcessDefaultActions()
-  if self:IsDead() then
-    return
-  end
-  if self.onthinkCustom then
-    self:onthinkCustom(tGameVariables)
-  end
-end
-
-function herobot:ProcessDefaultActions()
   ProcessChat(self)
   if self.SkillBuild then
     self:SkillBuild()
   end
   if ShouldBuy() and self.PerformShop then
     self:PerformShop()
+  end
+  if self.onthinkCustom then
+    self:onthinkCustom(tGameVariables)
   end
 end
 
