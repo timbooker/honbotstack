@@ -241,10 +241,10 @@ function herobot:PrintStates()
 end
 
 function herobot:EnemyCreepsNear()
-  local creeps = self:GetLocalUnitsSorted().EnemyUnits
+  local creeps = self:GetLocalUnits()
   for key, unit in pairs(creeps) do
     local unitType = unit:GetTypeName()
-    if unit:IsHero() or unitType == "Creep_HellbourneMelee" or unitType == "Creep_HellbourneRanged" or unitType == "Creep_HellbourneSiege" then
+    if unit:GetTeam() == self.core.enemyTeam and (Vector3.Distance2D(self.brain.hero:GetPosition(), unit:GetPosition()) < 800) then
       return true
     end
   end
