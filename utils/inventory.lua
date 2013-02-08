@@ -21,9 +21,13 @@ local function HasItemsInInventory(unit)
 end
 
 local function HasItemsInStash(unit)
-  local inventory_with_stash = unit:GetInventory(true)
-  local inventory = unit:GetInventory()
-  return #inventory_with_stash - #inventory > 0
+  local inventory = unit:GetInventory(true)
+  for i = 7, 12, 1 do
+    if inventory[i] then
+      return true
+    end
+  end
+  return false
 end
 
 function Inventory()

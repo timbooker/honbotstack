@@ -7,17 +7,17 @@ runfile 'bots/core_herobot.lua'
 runfile 'bots/utils/inventory.lua'
 runfile 'bots/utils/drawings.lua'
 runfile 'bots/utils/chat.lua'
-runfile 'bots/utils/courier_deliver.lua'
-runfile 'bots/utils/courier_upgrader.lua'
+runfile 'bots/utils/courier_controlling.lua'
 
 local ChatFns = ChatUtils()
 local DrawingsFns = Drawings()
-local CourierDeliverFns = CourierDeliver()
-local CourierUpgraderFns = CourierUpgrader()
+local CourierControllingFns = CourierControlling()
+local InventoryFns = Inventory()
 
 local print, tostring, tremove = _G.print, _G.tostring, _G.table.remove
 
 herobot.brain.goldTreshold = 0
+herobot.brain.reservingCourier = false
 
 local itemsToBuy = {
   'Item_MarkOfTheNovice',
@@ -95,11 +95,19 @@ function herobot:onthinkCustom(tGameVariables)
   if self:ProcessingStash() then
     return
   end
-  if courier then
-    if CourierUpgraderFns.CanUpgradeCourier(self, courier) then
-      CourierUpgraderFns.UpgradeCourier(self, courier)
+  if CourierControllingFns.HasCourier(self.teamBrain) then
+    if CourierControllingFns.CanUpgradeCourier(self.teamBrain, self) then
+      CourierControllingFns.UpgradeCourier(self.teamBrain, self)
     end
-    CourierDeliverFns.HasDelivered(self, courier)
+    if self.brain.reservingCourier then
+      if CourierControllingFns.IsFreed(self.teamBrain) then
+        Echo("Courier freed")
+        self.brain.reservingCourier = false
+      else
+        Echo("Courier holding")
+        CourierControllingFns.HasDelivered(self.teamBrain, self, self.brain.hero)
+      end
+    end
   end
   self:PrintStates()
   if self:IsDead() then
@@ -312,11 +320,17 @@ end
 
 function herobot:ProcessingStash()
   local hero = self.brain.hero
+  if not InventoryFns.HasItemsInStash(hero) then return end
   local courier = self.teamBrain.courier
   if hero:CanAccessStash() then
     return MoveItemsFromStashToHero(hero)
-  elseif CourierDeliverFns.IsNearStash(courier) then
-    CourierDeliverFns.MoveItemsToCourier(hero, courier)
+  elseif CourierControllingFns.IsNearStash(self.teamBrain) then
+    local reservingCourier = self.brain.reservingCourier or CourierControllingFns.Reserve(self.teamBrain)
+    Echo("reservingCourier:"..tostring(reservingCourier))
+    if reservingCourier then
+      self.brain.reservingCourier = true
+      CourierControllingFns.MoveItemsToCourier(self.teamBrain, hero)
+    end
   end
   return false
 end

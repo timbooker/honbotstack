@@ -4,36 +4,17 @@ local teambot = _G.object
 runfile 'bots/tournament_options.lua'
 runfile 'bots/basic_metadata.lua'
 
-teambot.courier = teambot.courier or nil
-
-local function allUnits()
-  return HoN.GetUnitsInRadius(Vector3.Create(), 99999, 0x0000020 + 0x0000001)
-end
-
-local function getCourier()
-  for key, unit in pairs(allUnits()) do
-    if unit:GetTypeName() == "Pet_GroundFamiliar" and unit:GetTeam() == teambot:GetTeam() then
-      return unit
-    end
-  end
-  return nil
-end
-function teambot:AssignCourier()
-  local courier = getCourier()
-  if courier then
-    self.courier = courier
-  else
-    self.courier = nil
-  end
-end
+runfile 'bots/utils/courier_controlling.lua'
+local CourierControllingFns = CourierControlling()
 
 function teambot:onthink(tGameVariables)
   if not self.metadata.initialized then
     self.metadata:Initialize()
   end
-  if not self.courier or not self.courier:IsValid() then
-    self:AssignCourier()
+  if not CourierControllingFns.IsInitialized(self) then
+    CourierControllingFns.Initialize(self)
   end
+  CourierControllingFns.FreeCourier(self)
   self:onthinkCustom(tGameVariables)
 end
 
