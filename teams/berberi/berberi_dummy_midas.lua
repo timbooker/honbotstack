@@ -16,6 +16,8 @@ runfile 'bots/utils/metadata_manager.lua'
 local MetadataManager = Utils_MetadataManager
 runfile "bots/utils/masks.lua"
 local MASKS = Utils_Masks
+runfile "bots/utils/priority_actions.lua"
+local PriorityActions = Utils_PriorityActions
 
 local print, tostring, tremove = _G.print, _G.tostring, _G.table.remove
 
@@ -107,7 +109,7 @@ function herobot:onthinkCustom(tGameVariables)
   if self:IsDead() then
     return
   end
-  self:PriorityActions()
+  PriorityActions.onthink(self)
 end
 
 function herobot:MoveToCreeps()
@@ -278,24 +280,39 @@ function herobot:GetHarassTarget()
   return nil
 end
 
-function herobot:PriorityActions()
-  local hero = self.brain.hero
-  local action = self.data.currentAction
-  local target = self:GetHarassTarget()
-  local function CanWard()
-    return action == actions.WARDING or
-      (action == nil and GetWardFromBag(hero))
-  end
-  local function CanHarass()
-    return hero:GetLevel() > 3 and target
-  end
-  if CanWard() then
-    self:WardSpots()
-    return
-  elseif CanHarass() then
-    giveAll(self, target)
-    return
-  else
-    self:MoveToCreeps()
-  end
+local wardingAction = {}
+wardingAction.name = "warding"
+wardingAction.CanActivate = function(bot)
+  local action = bot.data.currentAction
+  return action == actions.WARDING or
+    (action == nil and GetWardFromBag(bot.brain.hero))
 end
+wardingAction.Activate = function(bot)
+  bot:WardSpots()
+end
+PriorityActions.AddAction(wardingAction)
+
+local harassActionBuilder = function()
+  local action = {}
+  action.name = "harass"
+  action.CanActivate = function(bot)
+    local target = bot:GetHarassTarget()
+    return bot.brain.hero:GetLevel() > 3 and target
+  end
+  action.Activate = function(bot)
+    local target = bot:GetHarassTarget()
+    giveAll(bot, target)
+  end
+  return action
+end
+PriorityActions.AddAction(harassActionBuilder())
+
+local defaultAction = {}
+defaultAction.name = "default"
+defaultAction.CanActivate = function(bot)
+  return true
+end
+defaultAction.Activate = function(bot)
+  bot:MoveToCreeps()
+end
+PriorityActions.AddAction(defaultAction)
