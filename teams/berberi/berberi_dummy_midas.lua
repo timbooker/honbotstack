@@ -12,6 +12,8 @@ runfile 'bots/utils/chat.lua'
 local ChatFns = Utils_Chat
 runfile 'bots/utils/courier_controlling.lua'
 local CourierControlling = Utils_CourierControlling
+runfile 'bots/utils/metadata_manager.lua'
+local MetadataManager = Utils_MetadataManager
 
 local print, tostring, tremove = _G.print, _G.tostring, _G.table.remove
 
@@ -100,6 +102,7 @@ function herobot:onthinkCustom(tGameVariables)
   if self:IsDead() then
     return
   end
+  self:WardSpots()
   self:MoveToCreeps()
   self:Harass()
 end
@@ -233,4 +236,11 @@ function herobot:ProcessingStash()
     return MoveItemsFromStashToHero(hero)
   end
   return false
+end
+
+function herobot:WardSpots()
+  local wardSpots = MetadataManager.GetMapData('/bots/metadatas/wardspots.botmetadata')
+  for _, node in pairs(wardSpots:GetNodes()) do
+    DrawingsFns.DrawX(node:GetPosition())
+  end
 end
