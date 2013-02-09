@@ -142,7 +142,7 @@ function herobot:MoveToCreeps()
   DrawingsFns.DrawX(creepsInPosition)
   if herobot.data.creepsInPosition ~= creepsInPosition then
     herobot.data.creepsInPosition = creepsInPosition
-    self:OrderPosition(self.brain.hero, "Move", creepsInPosition)
+    self:OrderPosition(self.brain.hero, "Attack", creepsInPosition)
   end
 end
 
