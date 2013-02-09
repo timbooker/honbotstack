@@ -106,16 +106,21 @@ end
 
 local function giveAll(bot, target)
   local skills = bot.brain.skills
+  local targetPosition = target:GetPosition()
+  if skills.abilTaunt:CanActivate() then
+    bot:OrderAbilityEntity(skills.abilTaunt, target)
+    return
+  end
   if skills.abilW:CanActivate() then
-    bot:OrderAbilityPosition(skills.abilW, target:GetPosition())
+    bot:OrderAbilityPosition(skills.abilW, targetPosition)
     return
   end
   if skills.abilQ:CanActivate() then
-    bot:OrderAbilityPosition(skills.abilQ, target:GetPosition())
+    bot:OrderAbilityPosition(skills.abilQ, targetPosition)
     return
   end
   if skills.abilE:CanActivate() then
-    bot:OrderAbilityPosition(skills.abilE, target:GetPosition())
+    bot:OrderAbilityPosition(skills.abilE, targetPosition)
     return
   end
   bot:OrderEntity(bot.brain.hero, "Attack", target)
