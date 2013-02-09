@@ -18,6 +18,7 @@ local print, tostring, tremove = _G.print, _G.tostring, _G.table.remove
 herobot.brain.goldTreshold = 0
 
 herobot.data.canUpgradeCourier = true
+herobot.data.creepWavePos = nil
 
 local itemsToBuy = {
   'Item_MarkOfTheNovice',
@@ -135,86 +136,14 @@ function herobot:Harass()
   end
 end
 
-local function lolCost(parent, current, link, original)
-  --TODO: local nDistance = link:GetLength()
-  local nDistance = Vector3.Distance(parent:GetPosition(), current:GetPosition())
-  local nCostToParent = original - nDistance
-
-  --BotEcho(format("nOriginalCost: %s  nDistance: %s  nSq: %s", nOriginalCost, nDistance, nDistance*nDistance))
-
-  local sZoneProperty  = current:GetProperty("zone")
-  local bTowerProperty = current:GetProperty("tower")
-  local bBaseProperty  = current:GetProperty("base")
-
-  local nMultiplier = 1.0
-  local nEnemyTerritoryMul = 10
-  local bEnemyZone = false
-  if sZoneProperty and sZoneProperty == sEnemyZone then
-    bEnemyZone = true
-  end
-
-  if bEnemyZone then
-    nMultiplier = nMultiplier + nEnemyTerritoryMul
-    if bBaseProperty then
-      nMultiplier = nMultiplier + nBaseMul
-    end
-
-    if bTowerProperty then
-      --check if the tower is there
-      local tBuildings = HoN.GetUnitsInRadius(nodeCurrent:GetPosition(), 800, 0x0000020 + 0x0000002)
-
-      for _, unitBuilding in pairs(tBuildings) do
-        if unitBuilding:IsTower() then
-          nMultiplier = nMultiplier + nTowerMul
-          break
-        end
-      end
-    end
-  end
-
-  return nCostToParent + nDistance * nMultiplier
-end
 function herobot:MoveToCreeps()
   if self:EnemyCreepsNear() then return end
   local creepsInPosition = self:GetCreepPosOnMyLane()
   DrawingsFns.DrawX(creepsInPosition)
-  local myPos = self.brain.hero:GetPosition()
-  local path = {}
-  --if self:GetTeam() == 2 then
-  --  path = BotMetaData.FindPath(creepsInPosition, myPos, lolCost)
-  --else
-    path = BotMetaData.FindPath(myPos, creepsInPosition, lolCost)
-  --end
-  local nextIndex = 1
-  local nextI = 2
-  local nnextI = 3
-  if #path > 1 then
-    local vecMeToFirst = path[nextIndex]:GetPosition() - myPos
-    local vecFirstToSecond = path[nextI]:GetPosition() - path[nextIndex]:GetPosition()
-    if self:GetTeam() == 2 then
-      vecMeToFirst = myPos - path[nextIndex]:GetPosition()
-      vecFirstToSecond = path[nextIndex]:GetPosition() - path[nextI]:GetPosition()
-    end
-    if Vector3.Dot(vecMeToFirst, vecFirstToSecond) < 0 then
-      nextIndex = nextI
-    end
+  if herobot.data.creepsInPosition ~= creepsInPosition then
+    herobot.data.creepsInPosition = creepsInPosition
+    self:OrderPosition(self.brain.hero, "Move", creepsInPosition)
   end
-  if Vector3.Distance2DSq(path[nextIndex]:GetPosition(), myPos) < 300*300 then
-    if nextIndex == nextI then nextI = nnextI end
-    if path[nextI] then
-      nextIndex = nextI
-    end
-  end
-
-  local nextPos = path[nextIndex]:GetPosition()
-
-  DrawingsFns.DrawX(nextPos, "yellow")
-  --local beha = self.brain.hero:GetBehavior()
-  --if beha and beha:GetType() == "Attack" then
-  --  Echo("DONT MOVE")
-  --  return
-  --end
-  self:OrderPosition(self.brain.hero, "Move", nextPos)
 end
 
 function herobot:GetCreepPosOnMyLane()
