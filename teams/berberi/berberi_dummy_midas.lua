@@ -115,9 +115,14 @@ end
 function herobot:MoveToCreeps()
   local creepsInPosition = self:GetCreepPosOnMyLane()
   DrawingsFns.DrawX(creepsInPosition)
-  if herobot.data.creepsInPosition ~= creepsInPosition then
-    herobot.data.creepsInPosition = creepsInPosition
-    self:OrderPosition(self.brain.hero, "Attack", creepsInPosition)
+  local hero = self.brain.hero
+  local beha = hero:GetBehavior()
+  if beha and beha:IsIdle() then
+    self.data.creepsInPosition = nil
+  end
+  if self.data.creepsInPosition ~= creepsInPosition then
+    self.data.creepsInPosition = creepsInPosition
+    self:OrderPosition(hero, "Attack", creepsInPosition)
   end
 end
 
