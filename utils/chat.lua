@@ -1,5 +1,7 @@
 local _G = getfenv(0)
 
+local M = {}
+
 local ipairs, pairs, tinsert, tsort = _G.ipairs, _G.pairs, _G.table.insert, _G.table.sort
 
 local function OutgoingMessages(messages)
@@ -34,18 +36,23 @@ local function SendMessages(bot, messages)
 end
 
 local function IsChatInitialized(bot)
-  return not not bot.messages
+  return bot and bot.data and bot.data.messages and true
 end
 
 local function InitializeChat(bot)
-  bot.messages = bot.messages or {}
+  bot.data = bot.data or {}
+  bot.data.messages = {}
 end
 
-local function ProcessChat(bot)
-  local messages = OutgoingMessages(bot.messages)
+local function onthink(bot)
+  if not IsChatInitialized(bot) then
+    InitializeChat(bot)
+  end
+  local messages = OutgoingMessages(bot.data.messages)
   SortMessages(messages)
   SendMessages(bot, messages)
 end
+M.onthink = onthink
 
 local function Chat(bot, message, delay, isAll)
   delay = delay or 0
@@ -53,23 +60,17 @@ local function Chat(bot, message, delay, isAll)
     return
   end
   local currentTime = HoN.GetGameTime()
-  tinsert(bot.messages, {(currentTime + delay), isAll, message})
+  tinsert(bot.data.messages, {(currentTime + delay), isAll, message})
 end
 
 local function AllChat(bot, message, delay)
   return Chat(bot, message, delay, true)
 end
+M.AllChat = AllChat
 
 local function TeamChat(bot, message, delay)
   return Chat(bot, message, delay, false)
 end
+M.TeamChat = TeamChat
 
-function ChatUtils()
-  local functions = {}
-  functions.IsChatInitialized = IsChatInitialized
-  functions.InitializeChat = InitializeChat
-  functions.ProcessChat = ProcessChat
-  functions.AllChat = AllChat
-  functions.TeamChat = TeamChat
-  return functions
-end
+Utils_Chat = M

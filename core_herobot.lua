@@ -6,7 +6,7 @@ runfile 'bots/basic_metadata.lua'
 
 runfile 'bots/utils/chat.lua'
 
-local ChatFns = ChatUtils()
+local ChatFns = Utils_Chat
 
 herobot.data = {}
 
@@ -46,10 +46,7 @@ function herobot:onthink(tGameVariables)
   if not self.brain.initialized or self.brain.hero == nil then
     self:BrainInitialize(tGameVariables)
   end
-  if not ChatFns.IsChatInitialized(self) then
-    ChatFns.InitializeChat(self)
-  end
-  ChatFns.ProcessChat(self)
+  ChatFns.onthink(self)
   if self.SkillBuild then
     self:SkillBuild()
   end

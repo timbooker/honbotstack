@@ -11,7 +11,7 @@ runfile 'bots/utils/chat.lua'
 runfile 'bots/utils/courier_controlling.lua'
 local CourierControlling = Utils_CourierControlling
 
-local ChatFns = ChatUtils()
+local ChatFns = Utils_Chat
 local DrawingsFns = Drawings()
 local InventoryFns = Inventory()
 
