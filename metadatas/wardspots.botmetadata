@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<botmetadata version="1">
+  <nodes>
+    <node index="0" name="Legion jungle" x="6594.0000" y="3115.0000" z="384.0000" radius="32.0000">
+      <property name="legion" type="string" value="defensive" />
+      <property name="hellbourne" type="string" value="offensive" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="1" name="Legion pull south" x="11240.0000" y="2658.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="bad" />
+      <property name="hellbourne" type="string" value="offensive" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="true" />
+    </node>
+    <node index="2" name="Legion pull north" x="10998.0000" y="3324.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="bad" />
+      <property name="hellbourne" type="string" value="offensive" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="true" />
+    </node>
+    <node index="3" name="Legion lane" x="14326.0000" y="4977.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="defensive" />
+      <property name="hellbourne" type="string" value="neutral" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="4" name="Legion ruin" x="12285.0000" y="4467.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="defensive" />
+      <property name="hellbourne" type="string" value="defensive" />
+      <property name="rune" type="boolean" value="true" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="5" name="Legion block" x="11292.0000" y="4733.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="bad" />
+      <property name="hellbourne" type="string" value="offensive" />
+      <property name="rune" type="boolean" value="true" />
+      <property name="block" type="boolean" value="true" />
+    </node>
+    <node index="6" name="Legion river" x="10932.0000" y="5057.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="defensive" />
+      <property name="hellbourne" type="string" value="neutral" />
+      <property name="rune" type="boolean" value="true" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="7" name="Legion entrance" x="9896.0000" y="4902.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="defensive" />
+      <property name="hellbourne" type="string" value="offensive" />
+      <property name="rune" type="boolean" value="true" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="8" name="Hellbourne ancients" x="11580.0000" y="5746.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="offensive" />
+      <property name="hellbourne" type="string" value="defensive" />
+      <property name="rune" type="boolean" value="true" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="9" name="Hellbourne hill" x="13426.0000" y="8989.0000" z="384.0000" radius="32.0000">
+      <property name="legion" type="string" value="offensive" />
+      <property name="hellbourne" type="string" value="defensive" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="10" name="Legion hill" x="3297.0000" y="7294.0000" z="512.0000" radius="32.0000">
+      <property name="legion" type="string" value="defensive" />
+      <property name="hellbourne" type="string" value="offensive" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="11" name="Legion ancients" x="6179.0000" y="8218.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="defensive" />
+      <property name="hellbourne" type="string" value="offensive" />
+      <property name="rune" type="boolean" value="true" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="12" name="Hellbourne river" x="7164.0000" y="8938.0000" z="0.0000" radius="32.0000">
+      <property name="legion" type="string" value="offensive" />
+      <property name="hellbourne" type="string" value="defensive" />
+      <property name="rune" type="boolean" value="true" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="13" name="Hellbourne entrance" x="8129.0000" y="9577.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="offensive" />
+      <property name="hellbourne" type="string" value="defensive" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="14" name="Hellbourne block" x="6156.0000" y="10508.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="offensive" />
+      <property name="hellbourne" type="string" value="bad" />
+      <property name="rune" type="boolean" value="true" />
+      <property name="block" type="boolean" value="true" />
+    </node>
+    <node index="15" name="Hellbourne pull south" x="5003.0000" y="12159.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="offensive" />
+      <property name="hellbourne" type="string" value="bad" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="true" />
+    </node>
+    <node index="16" name="Hellbourne pull north" x="5006.0000" y="12855.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="offensive" />
+      <property name="hellbourne" type="string" value="bad" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="true" />
+    </node>
+    <node index="17" name="Hellbourne jungle" x="9173.0000" y="12641.0000" z="384.0000" radius="32.0000">
+      <property name="legion" type="string" value="offensive" />
+      <property name="hellbourne" type="string" value="defensive" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+    <node index="18" name="Hellbourne lane" x="4829.0000" y="13921.0000" z="128.0000" radius="32.0000">
+      <property name="legion" type="string" value="offensive" />
+      <property name="hellbourne" type="string" value="neutral" />
+      <property name="rune" type="boolean" value="false" />
+      <property name="block" type="boolean" value="false" />
+    </node>
+  </nodes>
+</botmetadata>
