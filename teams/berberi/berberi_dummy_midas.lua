@@ -137,7 +137,6 @@ function herobot:Harass()
 end
 
 function herobot:MoveToCreeps()
-  if self:EnemyCreepsNear() then return end
   local creepsInPosition = self:GetCreepPosOnMyLane()
   DrawingsFns.DrawX(creepsInPosition)
   if herobot.data.creepsInPosition ~= creepsInPosition then
@@ -161,17 +160,6 @@ function herobot:PrintStates()
   if behavior then
     Echo(behavior:GetType())
   end
-end
-
-function herobot:EnemyCreepsNear()
-  local creeps = self:GetLocalUnits()
-  for key, unit in pairs(creeps) do
-    local unitType = unit:GetTypeName()
-    if unit:GetTeam() == self.core.enemyTeam and (Vector3.Distance2D(self.brain.hero:GetPosition(), unit:GetPosition()) < 800) then
-      return true
-    end
-  end
-  return false
 end
 
 local function hasInStash(items)
