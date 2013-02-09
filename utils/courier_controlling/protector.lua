@@ -3,7 +3,7 @@ local _G = getfenv(0)
 local M = {}
 
 runfile "bots/utils/masks.lua"
-local MASKS = Masks()
+local MASKS = Utils_Masks
 
 local COURIER_SHIELD_RANGE = 1000
 local FLYING_COURIER = "Pet_FlyngCourier"

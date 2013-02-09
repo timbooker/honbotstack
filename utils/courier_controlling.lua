@@ -2,8 +2,6 @@ local _G = getfenv(0)
 
 local M = {}
 
-runfile "bots/utils/masks.lua"
-local MASKS = Masks()
 runfile "bots/utils/courier_controlling/selector.lua"
 local selector = Utils_CourierControlling_Selector
 runfile "bots/utils/courier_controlling/upgrader.lua"

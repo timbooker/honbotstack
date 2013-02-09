@@ -1,13 +1,13 @@
 local _G = getfenv(0)
 
-function Masks()
-  local masks = {}
-  masks.UNIT = 0x0000001
-  masks.BUILDING = 0x0000002
-  masks.HERO = 0x0000004
-  masks.POWERUP = 0x0000008
-  masks.GADGET = 0x0000010
-  masks.ALIVE = 0x0000020
-  masks.CORPSE = 0x0000040
-  return masks
-end
+local M = {}
+
+M.UNIT = 0x0000001
+M.BUILDING = 0x0000002
+M.HERO = 0x0000004
+M.POWERUP = 0x0000008
+M.GADGET = 0x0000010
+M.ALIVE = 0x0000020
+M.CORPSE = 0x0000040
+
+Utils_Masks = M
