@@ -8,6 +8,8 @@ runfile 'bots/utils/chat.lua'
 
 local ChatFns = ChatUtils()
 
+herobot.data = {}
+
 herobot.core = {}
 herobot.core.initialized = false
 herobot.core.myTeam = 0
