@@ -1,6 +1,8 @@
 local _G = getfenv(0)
 local print, tostring = _G.print, _G.tostring
 
+local M = {}
+
 local function PrintInventory(inventory)
   if not inventory then
     return
@@ -14,11 +16,13 @@ local function PrintInventory(inventory)
     end
   end
 end
+M.PrintInventory = PrintInventory
 
 local function HasItemsInInventory(unit)
   local inventory = unit:GetInventory()
   return #inventory > 0
 end
+M.HasItemsInInventory = HasItemsInInventory
 
 local function HasItemsInStash(unit)
   local inventory = unit:GetInventory(true)
@@ -29,11 +33,6 @@ local function HasItemsInStash(unit)
   end
   return false
 end
+M.HasItemsInStash = HasItemsInStash
 
-function Inventory()
-  local functions = {}
-  functions.PrintInventory = PrintInventory
-  functions.HasItemsInInventory = HasItemsInInventory
-  functions.HasItemsInStash = HasItemsInStash
-  return functions
-end
+Utils_Inventory = M

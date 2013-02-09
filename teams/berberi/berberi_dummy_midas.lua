@@ -5,14 +5,13 @@ herobot.heroName = 'Hero_Midas'
 
 runfile 'bots/core_herobot.lua'
 runfile 'bots/utils/inventory.lua'
+local InventoryFns = Utils_Inventory
 runfile 'bots/utils/drawings.lua'
 local DrawingsFns = Utils_Drawings
 runfile 'bots/utils/chat.lua'
 local ChatFns = Utils_Chat
 runfile 'bots/utils/courier_controlling.lua'
 local CourierControlling = Utils_CourierControlling
-
-local InventoryFns = Inventory()
 
 local print, tostring, tremove = _G.print, _G.tostring, _G.table.remove
 
