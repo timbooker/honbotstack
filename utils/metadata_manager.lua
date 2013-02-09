@@ -48,12 +48,12 @@ local function CreateMapData(path)
     end
   end
   data.FindByName = function(self, name)
-    self:QueryNode(function(node)
+    return self:QueryNode(function(node)
       return node:GetName() == name
     end)
   end
   data.FindAllByProperty = function(self, property, value)
-    self:QueryNodes(function(node)
+    return self:QueryNodes(function(node)
       return node:GetProperty(property) == value
     end)
   end

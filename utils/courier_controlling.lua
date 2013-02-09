@@ -39,6 +39,7 @@ end
 
 local function Free(teambot)
   teambot.data.courierReserver = nil
+  teambot.data.courierState = IDLE
 end
 
 local function CanThink(teambot, bot)
@@ -75,18 +76,26 @@ local function TakeABreak(teambot)
   Free(teambot)
 end
 
-local function CanDeliverToAnother(teambot, bot, courier)
-  local status = teambot.data.courierState
-  if status == IDLE or status == RETURNING then
-    local inventory = courier:GetInventory()
-    for i = 1, 6, 1 do
-      local item = inventory[i]
-      if item and item:IsValid() then
-        return true
-      end
+local function HasEmptyInventory(unit)
+  local inventory = unit:GetInventory()
+  for i = 1, 6, 1 do
+    local item = inventory[i]
+    if item and item:IsValid() then
+      return false
     end
   end
-  return false
+  return true
+end
+
+local function HasFullInventory(unit)
+  local inventory = unit:GetInventory()
+  return #inventory == 6
+end
+
+local function CanDeliverToAnother(teambot, bot, courier)
+  local status = teambot.data.courierState
+  return (status == IDLE or status == RETURNING) and
+         not HasEmptyInventory(courier)
 end
 
 local function DeliverItems(teambot, bot, courier)
@@ -109,8 +118,17 @@ local function DeliveringToDeadGuy(teambot, bot)
   return bot:IsDead() and teambot.data.courierReserver == bot:GetName()
 end
 
+local function DeliveryTargetHasFullInventory(teambot, bot, courier)
+  return teambot.data.courierState == DELIVERING and
+    not HasEmptyInventory(courier) and
+    HasFullInventory(bot:GetHeroUnit())
+end
+
 local function MoveCourier(teambot, bot, courier)
-  if CanDeliverToAnother(teambot, bot, courier) then
+  if DeliveryTargetHasFullInventory(teambot, bot, courier) then
+    Free(teambot)
+    bot:Order(courier, "Stop")
+  elseif CanDeliverToAnother(teambot, bot, courier) then
     DeliverItems(teambot, bot, courier)
   elseif IsAloneInWilderness(teambot, courier) then
     ReturnHome(teambot, bot, courier)

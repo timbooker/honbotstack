@@ -14,6 +14,8 @@ runfile 'bots/utils/courier_controlling.lua'
 local CourierControlling = Utils_CourierControlling
 runfile 'bots/utils/metadata_manager.lua'
 local MetadataManager = Utils_MetadataManager
+runfile "bots/utils/masks.lua"
+local MASKS = Utils_Masks
 
 local print, tostring, tremove = _G.print, _G.tostring, _G.table.remove
 
@@ -21,6 +23,10 @@ herobot.brain.goldTreshold = 0
 
 herobot.data.canUpgradeCourier = true
 herobot.data.creepWavePos = nil
+herobot.data.currentAction = nil
+
+local actions = {}
+actions.WARDING = 0
 
 local itemsToBuy = {
   'Item_MarkOfTheNovice',
@@ -98,50 +104,10 @@ function herobot:onthinkCustom(tGameVariables)
     return
   end
   CourierControlling.onthink(self.teamBrain, self)
-  --self:PrintStates()
   if self:IsDead() then
     return
   end
-  self:WardSpots()
-  self:MoveToCreeps()
-  self:Harass()
-end
-
-local function giveAll(bot, target)
-  local skills = bot.brain.skills
-  local targetPosition = target:GetPosition()
-  if skills.abilTaunt:CanActivate() then
-    bot:OrderAbilityEntity(skills.abilTaunt, target)
-    return
-  end
-  if skills.abilW:CanActivate() then
-    bot:OrderAbilityPosition(skills.abilW, targetPosition)
-    return
-  end
-  if skills.abilQ:CanActivate() then
-    bot:OrderAbilityPosition(skills.abilQ, targetPosition)
-    return
-  end
-  if skills.abilE:CanActivate() then
-    bot:OrderAbilityPosition(skills.abilE, targetPosition)
-    return
-  end
-  bot:OrderEntity(bot.brain.hero, "Attack", target)
-end
-
-function herobot:Harass()
-  if self.brain.hero:GetLevel() < 4 then
-    return
-  end
-  local enemies = self:GetLocalEnemies()
-  local target = nil
-  for uid, unit in pairs(enemies) do
-    target = unit
-  end
-  if target then
-    ChatFns.AllChat(self, "I gonna kill ya!")
-    giveAll(self, target)
-  end
+  self:PriorityActions()
 end
 
 function herobot:MoveToCreeps()
@@ -238,9 +204,98 @@ function herobot:ProcessingStash()
   return false
 end
 
+local function GetWardFromBag(hero)
+  local inventory = hero:GetInventory()
+  for _, item in ipairs(inventory) do
+    if item:GetName() == "Item_FlamingEye" then
+      return item
+    end
+  end
+  return nil
+end
+
+local function WardInGround(spot)
+  local gadgets = HoN.GetUnitsInRadius(spot, 200, MASKS.GADGET + MASKS.ALIVE)
+  for k, gadget in pairs(gadgets) do
+    if gadget:GetTypeName() == "Gadget_FlamingEye" then
+      return true
+    end
+  end
+  return false
+end
+
 function herobot:WardSpots()
+  local ward = GetWardFromBag(self.brain.hero)
+  if self.data.currentAction == actions.WARDING then
+    if not ward then
+      self:Order(self.brain.hero, "Stop")
+      self.data.currentAction = nil
+    end
+    return
+  end
   local wardSpots = MetadataManager.GetMapData('/bots/metadatas/wardspots.botmetadata')
-  for _, node in pairs(wardSpots:GetNodes()) do
-    DrawingsFns.DrawX(node:GetPosition())
+  local wardSpot = wardSpots:FindByName("Legion ancients")
+  local spot = wardSpot:GetPosition()
+  DrawingsFns.DrawX(spot, "cyan")
+  if not WardInGround(spot) and ward then
+    self:OrderItemPosition(ward, spot)
+    self.data.currentAction = actions.WARDING
+    Echo("warding")
+  end
+end
+
+local function giveAll(bot, target)
+  ChatFns.AllChat(bot, "I gonna kill ya!")
+  local skills = bot.brain.skills
+  local targetPosition = target:GetPosition()
+  if skills.abilTaunt:CanActivate() then
+    bot:OrderAbilityEntity(skills.abilTaunt, target)
+    return
+  end
+  if skills.abilW:CanActivate() then
+    bot:OrderAbilityPosition(skills.abilW, targetPosition)
+    return
+  end
+  if skills.abilQ:CanActivate() then
+    bot:OrderAbilityPosition(skills.abilQ, targetPosition)
+    return
+  end
+  if skills.abilE:CanActivate() then
+    bot:OrderAbilityPosition(skills.abilE, targetPosition)
+    return
+  end
+  bot:OrderEntity(bot.brain.hero, "Attack", target)
+end
+
+function herobot:GetHarassTarget()
+  local enemies = self:GetLocalEnemies()
+  local target = nil
+  for _, unit in pairs(enemies) do
+    if unit then
+      return unit
+    end
+  end
+  return nil
+end
+
+function herobot:PriorityActions()
+  local hero = self.brain.hero
+  local action = self.data.currentAction
+  local target = self:GetHarassTarget()
+  local function CanWard()
+    return action == actions.WARDING or
+      (action == nil and GetWardFromBag(hero))
+  end
+  local function CanHarass()
+    return hero:GetLevel() > 3 and target
+  end
+  if CanWard() then
+    self:WardSpots()
+    return
+  elseif CanHarass() then
+    giveAll(self, target)
+    return
+  else
+    self:MoveToCreeps()
   end
 end
