@@ -108,6 +108,7 @@ function herobot:onthinkCustom(tGameVariables)
   end
   CourierControlling.onthink(self.teamBrain, self)
   if self:IsDead() then
+    RuneControl.SkipCurrentRune(self, self.brain.hero)
     return
   end
   PriorityActions.onthink(self)
@@ -262,6 +263,9 @@ end
 runeAction.Activate = function(bot)
   RuneControl.RuneAction(bot, bot.brain.hero)
 end
+runeAction.RunDown = function(bot)
+  RuneControl.SkipCurrentRune(bot, bot.brain.hero)
+end
 
 local wardingAction = {}
 wardingAction.name = "warding"
@@ -270,6 +274,8 @@ wardingAction.CanActivate = function(bot)
 end
 wardingAction.Activate = function(bot)
   Warding.DoWarding(bot, bot.brain.hero, bot:GetWardingSpot())
+end
+wardingAction.RunDown = function(bot)
 end
 
 local harassActionBuilder = function()
@@ -283,6 +289,8 @@ local harassActionBuilder = function()
     local target = bot:GetHarassTarget()
     giveAll(bot, target)
   end
+  action.RunDown = function(bot)
+  end
   return action
 end
 
@@ -293,6 +301,8 @@ defaultAction.CanActivate = function(bot)
 end
 defaultAction.Activate = function(bot)
   bot:MoveToCreeps()
+end
+defaultAction.RunDown = function(bot)
 end
 
 PriorityActions.AddAction(wardingAction)

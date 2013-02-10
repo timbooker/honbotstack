@@ -20,12 +20,6 @@ local takingRune = false
 local checkingRune = false
 local walking = false
 
-local function IsRuneUp()
-  local currentMatchTime = HoN.GetMatchTime()
-  return currentMatchTime and currentMatchTime > nextRune
-end
-M.IsRuneUp = IsRuneUp
-
 local function SkipCurrentRune(bot, hero)
   takingRune = false
   checkingRune = false
@@ -34,6 +28,7 @@ local function SkipCurrentRune(bot, hero)
   nextRune = RuneTimer()
   bot:Order(hero, "Stop")
 end
+M.SkipCurrentRune = SkipCurrentRune
 
 local function GetRuneInSpot(spot)
   local powerups = HoN.GetUnitsInRadius(spot, 500, MASKS.POWERUP + MASKS.ALIVE)
@@ -113,6 +108,13 @@ local function CanTake(bot, hero)
   local beha = hero:GetBehavior()
   return beha and beha:GetType() == "Touch"
 end
+
+local function IsRuneUp()
+  local currentMatchTime = HoN.GetMatchTime()
+  return (currentMatchTime and currentMatchTime > nextRune) or
+    GetRuneInSpot(RUNE_TOP) or GetRuneInSpot(RUNE_BOTTOM)
+end
+M.IsRuneUp = IsRuneUp
 
 local function RuneAction(bot, hero)
   if takingRune then

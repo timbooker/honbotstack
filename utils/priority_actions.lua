@@ -9,11 +9,14 @@ local latestAction = nil
 local function onthink(bot)
   for _, action in ipairs(actions) do
     if action.CanActivate(bot) then
-      action.Activate(bot)
-      if latestAction ~= action.name then
-        latestAction = action.name
-        Echo(latestAction)
+      if latestAction ~= action then
+        if latestAction then
+          latestAction.RunDown(bot)
+        end
+        latestAction = action
+        Echo(bot:GetName() .. ": " .. action.name)
       end
+      action.Activate(bot)
       return
     end
   end
