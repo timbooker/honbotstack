@@ -29,9 +29,6 @@ herobot.data.canUpgradeCourier = true
 herobot.data.creepWavePos = nil
 herobot.data.currentAction = nil
 
-local actions = {}
-actions.WARDING = 0
-
 local itemsToBuy = {
   'Item_MarkOfTheNovice',
   'Item_PretendersCrown',
@@ -209,26 +206,6 @@ function herobot:ProcessingStash()
   if not InventoryFns.HasItemsInStash(hero) then return end
   if hero:CanAccessStash() then
     return MoveItemsFromStashToHero(hero)
-  end
-  return false
-end
-
-local function GetWardFromBag(hero)
-  local inventory = hero:GetInventory()
-  for _, item in ipairs(inventory) do
-    if item:GetName() == "Item_FlamingEye" then
-      return item
-    end
-  end
-  return nil
-end
-
-local function WardInGround(spot)
-  local gadgets = HoN.GetUnitsInRadius(spot, 200, MASKS.GADGET + MASKS.ALIVE)
-  for k, gadget in pairs(gadgets) do
-    if gadget:GetTypeName() == "Gadget_FlamingEye" then
-      return true
-    end
   end
   return false
 end
