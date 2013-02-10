@@ -38,7 +38,6 @@ local itemsToBuy = {
   'Item_PretendersCrown',
   'Item_RunesOfTheBlight',
   'Item_ManaPotion',
-  'Item_FlamingEye',
   'Item_Intelligence5',
   'Item_Marchers',
   'Item_Striders',
@@ -59,6 +58,7 @@ local itemsToBuy = {
 }
 
 local tpStone = HoN.GetItemDefinition("Item_HomecomingStone")
+local ward = HoN.GetItemDefinition("Item_FlamingEye")
 local function getNextItemToBuy()
   return HoN.GetItemDefinition(itemsToBuy[1]) or tpStone
 end
@@ -69,6 +69,9 @@ end
 
 function herobot:PerformShop()
   local hero = self.brain.hero
+  if self.teamBrain:AmISupport(self) then
+    hero:PurchaseRemaining(ward)
+  end
   if #itemsToBuy == 0 then return end
   local nextItem = getNextItemToBuy()
   local itemCost = nextItem:GetCost()
@@ -77,7 +80,6 @@ function herobot:PerformShop()
     tremove(itemsToBuy, 1)
   end
   updateTreshold(self)
-  Echo("My current treshold: "..tostring(self.brain.goldTreshold))
 end
 
 function herobot:SkillBuildWhatNext()
@@ -103,7 +105,6 @@ end
 
 function herobot:onthinkCustom(tGameVariables)
   if not assignedToTeam then
-    Echo("Assign")
     self.teamBrain:AddHero(self)
     assignedToTeam = true
   end
@@ -130,14 +131,13 @@ function herobot:MoveToCreeps()
   end
   if self.data.creepsInPosition ~= creepsInPosition then
     self.data.creepsInPosition = creepsInPosition
-    self:OrderPosition(hero, "Attack", creepsInPosition)
+    self:OrderPosition(hero, "Move", creepsInPosition)
   end
 end
 
 function herobot:GetCreepPosOnMyLane()
   local lane = self.brain.myLane
   if not lane or #lane < 1 then
-    Echo('No lane')
     return nil
   end
   return self.teamBrain:GetFrontOfCreepWavePosition(lane.laneName)
@@ -282,6 +282,7 @@ wardingAction.Activate = function(bot)
   Warding.DoWarding(bot, bot.brain.hero, bot:GetWardingSpot())
 end
 wardingAction.RunDown = function(bot)
+  bot:Order(bot.brain.hero, "Stop")
 end
 
 local harassActionBuilder = function()
@@ -309,9 +310,115 @@ defaultAction.Activate = function(bot)
   bot:MoveToCreeps()
 end
 defaultAction.RunDown = function(bot)
+  bot:Order(bot.brain.hero, "Stop")
 end
 
-PriorityActions.AddAction(wardingAction)
+local laningAction ={}
+laningAction.name = "laning"
+laningAction.CanActivate = function(bot)
+  local units = bot:GetLocalUnitsSorted()
+  local enemies = units.Enemies
+  for _, unit in pairs(enemies) do
+    return true
+  end
+  return false
+end
+laningAction.Activate = function(bot)
+  -- TODO: refactor this
+  local hero = bot.brain.hero
+  local heroPosition = hero:GetPosition()
+  local beha = hero:GetBehavior()
+  if beha and (beha:GetType() == "Attack" or beha:GetType() == "Ability") then
+    return
+  end
+  local target = nil
+  local units = bot:GetLocalUnitsSorted()
+  local enemies = units.Enemies
+  for _, unit in pairs(enemies) do
+    if not target or Vector3.Distance(heroPosition, target:GetPosition()) > Vector3.Distance(heroPosition, unit:GetPosition()) then
+      target = unit
+    end
+  end
+  bot:OrderEntity(bot.brain.hero, "Attack", target)
+end
+laningAction.RunDown = function(bot)
+  bot:Order(bot.brain.hero, "Stop")
+end
+
+local movingToTree = false
+local eatingTree = false
+local eatingTreeCD = nil
+local healingAction = {}
+local target = nil
+local rune = nil
+healingAction.name = "healing"
+healingAction.CanActivate = function(bot)
+  if eatingTree then
+    return true
+  elseif eatingTreeCD and eatingTreeCD > HoN.GetMatchTime() then
+    return false
+  end
+  local hero = bot.brain.hero
+  if hero:GetHealth() < (hero:GetMaxHealth() - 115) then
+    local inv = hero:GetInventory()
+    for _, item in ipairs(inv) do
+      if item:GetTypeName() == "Item_RunesOfTheBlight" then
+        return true
+      end
+    end
+  end
+  return false
+end
+healingAction.Activate = function(bot)
+  local hero = bot.brain.hero
+  local heroPosition = hero:GetPosition()
+  if target and movingToTree then
+    local distance = Vector3.Distance(heroPosition, target:GetPosition())
+    if distance < 150 then
+      bot:OrderItemEntity(rune, target)
+      eatingTree = true
+      movingToTree = false
+    else
+      Echo(tostring(distance))
+      Echo("moving to tree")
+    end
+    return
+  elseif eatingTree then
+    local beha = hero:GetBehavior()
+    eatingTreeCD = HoN.GetMatchTime() + 16000
+    eatingTree = false
+    return
+  end
+  local inv = hero:GetInventory()
+  for _, item in ipairs(inv) do
+    if item:GetTypeName() == "Item_RunesOfTheBlight" then
+      rune = item
+      break
+    end
+  end
+  if rune then
+    local trees = HoN.GetTreesInRadius(heroPosition, 900)
+    for _, tree in pairs(trees) do
+      if not target or Vector3.Distance(heroPosition, target:GetPosition()) > Vector3.Distance(heroPosition, tree:GetPosition()) then
+        target = tree
+      end
+    end
+    if target then
+      bot:OrderPosition(hero, "Move", target:GetPosition())
+      Echo("go eat tree")
+      movingToTree = true
+    end
+  end
+end
+healingAction.RunDown = function(bot)
+  target = nil
+  rune = nil
+  bot:Order(bot.brain.hero, "Stop")
+end
+
+PriorityActions.AddAction(healingAction)
 PriorityActions.AddAction(harassActionBuilder())
+PriorityActions.AddAction(wardingAction)
 PriorityActions.AddAction(runeAction)
+PriorityActions.AddAction(laningAction)
 PriorityActions.AddAction(defaultAction)

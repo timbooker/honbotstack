@@ -6,13 +6,31 @@ teambot.name = 'Team Berberi'
 runfile 'bots/core_teambot.lua'
 
 teambot.data.heroes = teambot.data.heroes or {}
+teambot.data.runeCollector = nil
+teambot.data.support = nil
 
 function teambot:AddHero(bot)
-  table.insert(self.data.heroes, bot)
+  self.data.heroes[bot] = bot
+  if not self.data.runeCollector then
+    self.data.runeCollector = bot
+  elseif not self.data.support then
+    self.data.support = bot
+  end
+end
+
+function teambot:GetFirst()
+  for _, bot in pairs(self.data.heroes) do
+    return bot
+  end
+  return nil
 end
 
 function teambot:AmIRuneCollector(bot)
-  return self.data and self.data.heroes and self.data.heroes[1] == bot
+  return (self.data.runeCollector or self:GetFirst()) == bot
+end
+
+function teambot:AmISupport(bot)
+  return (self.data.support or self:GetFirst()) == bot
 end
 
 function teambot:onthinkCustom(tGameVariables)
