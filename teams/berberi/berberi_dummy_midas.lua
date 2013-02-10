@@ -372,15 +372,13 @@ end
 healingAction.Activate = function(bot)
   local hero = bot.brain.hero
   local heroPosition = hero:GetPosition()
-  if target and movingToTree then
+  if target and target:IsValid() and movingToTree then
     local distance = Vector3.Distance(heroPosition, target:GetPosition())
     if distance < 150 then
       bot:OrderItemEntity(rune, target)
       eatingTree = true
       movingToTree = false
     else
-      Echo(tostring(distance))
-      Echo("moving to tree")
     end
     return
   elseif eatingTree then
@@ -405,7 +403,6 @@ healingAction.Activate = function(bot)
     end
     if target then
       bot:OrderPosition(hero, "Move", target:GetPosition())
-      Echo("go eat tree")
       movingToTree = true
     end
   end
