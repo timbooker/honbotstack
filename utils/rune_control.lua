@@ -4,9 +4,11 @@ local M = {}
 
 runfile "bots/utils/masks.lua"
 local MASKS = Utils_Masks
+runfile "bots/utils/drawings.lua"
+local DrawingsFns = Utils_Drawings
 
 local INTERVAL = 120000
-local RUNE_TOP = Vector3.Create(5830, 9750)
+local RUNE_TOP = Vector3.Create(5800, 9720)
 local RUNE_BOTTOM = Vector3.Create(11300, 5200)
 
 local function RuneTimer()
@@ -110,6 +112,8 @@ local function CanTake(bot, hero)
 end
 
 local function IsRuneUp()
+  DrawingsFns.DrawX(RUNE_TOP, "green")
+  DrawingsFns.DrawX(RUNE_BOTTOM, "green")
   local currentMatchTime = HoN.GetMatchTime()
   return (currentMatchTime and currentMatchTime > nextRune) or
     GetRuneInSpot(RUNE_TOP) or GetRuneInSpot(RUNE_BOTTOM)
