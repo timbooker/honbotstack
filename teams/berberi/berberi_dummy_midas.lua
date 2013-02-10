@@ -18,6 +18,8 @@ runfile "bots/utils/masks.lua"
 local MASKS = Utils_Masks
 runfile "bots/utils/priority_actions.lua"
 local PriorityActions = Utils_PriorityActions
+runfile "bots/utils/warding.lua"
+local Warding = Utils_Warding
 
 local print, tostring, tremove = _G.print, _G.tostring, _G.table.remove
 
@@ -231,24 +233,12 @@ local function WardInGround(spot)
   return false
 end
 
-function herobot:WardSpots()
-  local ward = GetWardFromBag(self.brain.hero)
-  if self.data.currentAction == actions.WARDING then
-    if not ward then
-      self:Order(self.brain.hero, "Stop")
-      self.data.currentAction = nil
-    end
-    return
-  end
+function herobot:GetWardingSpot()
   local wardSpots = MetadataManager.GetMapData('/bots/metadatas/wardspots.botmetadata')
   local wardSpot = wardSpots:FindByName("Legion ancients")
   local spot = wardSpot:GetPosition()
   DrawingsFns.DrawX(spot, "cyan")
-  if not WardInGround(spot) and ward then
-    self:OrderItemPosition(ward, spot)
-    self.data.currentAction = actions.WARDING
-    Echo("warding")
-  end
+  return spot
 end
 
 local function giveAll(bot, target)
@@ -288,12 +278,10 @@ end
 local wardingAction = {}
 wardingAction.name = "warding"
 wardingAction.CanActivate = function(bot)
-  local action = bot.data.currentAction
-  return action == actions.WARDING or
-    (action == nil and GetWardFromBag(bot.brain.hero))
+  return Warding.IsWardingPossible(bot.brain.hero, bot:GetWardingSpot())
 end
 wardingAction.Activate = function(bot)
-  bot:WardSpots()
+  Warding.DoWarding(bot, bot.brain.hero, bot:GetWardingSpot())
 end
 PriorityActions.AddAction(wardingAction)
 
