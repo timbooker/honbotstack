@@ -114,7 +114,7 @@ local function IdlingInPool(teambot, courier)
 end
 
 local function DeliveringToDeadGuy(teambot, bot)
-  return bot:IsDead() and teambot.data.courierReserver == bot:GetName()
+  return bot:IsDead()
 end
 
 local function DeliveryTargetHasFullInventory(teambot, bot, courier)
@@ -138,7 +138,7 @@ local function MoveCourier(teambot, bot, courier)
     TakeABreak(teambot)
   elseif DeliveringToDeadGuy(teambot, bot) then
     Free(teambot)
-    bot:Order(courier, "Stop")
+    ReturnHome(teambot, bot, courier)
   end
 end
 

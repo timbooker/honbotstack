@@ -69,7 +69,13 @@ end
 
 function herobot:PerformShop()
   local hero = self.brain.hero
-  if self.teamBrain:AmISupport(self) then
+  local wardFound = false
+  for _, item in ipairs(hero:GetInventory(true)) do
+    if item:GetTypeName() == "Item_FlamingEye" then
+      wardFound = true
+    end
+  end
+  if self.teamBrain:AmISupport(self) and not wardFound then
     hero:PurchaseRemaining(ward)
   end
   if #itemsToBuy == 0 then return end
@@ -183,6 +189,40 @@ local function worthyItemsInStash(items)
   return 0, 0
 end
 
+
+local function table_find(table, value)
+  for _, v in ipairs(table) do
+    if v.item_type == value then
+      return true
+    end
+  end
+  return false
+end
+local function HeroHasStackableItems(hero)
+  local items = {}
+  local inventory = hero:GetInventory(true)
+  local stackableInHero = {}
+  for i = 1, 6, 1 do
+    local item = inventory[i]
+    if item and item:GetCharges() > 0 then
+      local lol = {}
+      lol.item_type = item:GetType()
+      lol.index = i
+      table.insert(stackableInHero, lol)
+    end
+  end
+  for i = 7, 12, 1 do
+    local item = inventory[i]
+    if item and table_find(stackableInHero, item:GetType()) then
+      local lol = {}
+      lol.slot1 = i
+      lol.slot2 = stackableInHero.index
+      table.insert(items, lol)
+    end
+  end
+  return items
+end
+
 local function moveItemsFromStash(hero, items)
   local slotIndex = emptySlotInBackpack(items)
   if slotIndex > 0 then
@@ -199,6 +239,10 @@ local function moveItemsFromStash(hero, items)
 end
 
 local function MoveItemsFromStashToHero(hero)
+  local stackable = HeroHasStackableItems(hero)
+  for _, slots in ipairs(stackable) do
+    hero:SwapItems(slots.slot1, slots.slot2)
+  end
   local inventory = hero:GetInventory(true)
   local items_slot = {}
   for i = 1, 12, 1 do

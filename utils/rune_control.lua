@@ -132,7 +132,7 @@ local function RuneAction(bot, hero)
   else
     local rune = CheckIfSpotsAreVisible()
     if rune then
-      GetRune(bot, hero, rune)
+      GoCheckRune(bot, hero)
     end
   end
 end
