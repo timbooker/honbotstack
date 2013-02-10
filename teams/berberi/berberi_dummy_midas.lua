@@ -334,7 +334,7 @@ local harassActionBuilder = function()
   action.name = "harass"
   action.CanActivate = function(bot)
     local target = bot:GetHarassTarget()
-    return bot.brain.hero:GetLevel() > 3 and target
+    return bot.brain.hero:GetLevel() > 2 and target
   end
   action.Activate = function(bot)
     local target = bot:GetHarassTarget()

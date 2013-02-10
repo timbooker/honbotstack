@@ -94,7 +94,7 @@ end
 local function CanDeliverToAnother(teambot, bot, courier)
   local status = teambot.data.courierState
   return (status == IDLE or status == RETURNING) and
-         not HasEmptyInventory(courier)
+         not HasEmptyInventory(courier) and not bot:IsDead()
 end
 
 local function DeliverItems(teambot, bot, courier)
@@ -114,7 +114,7 @@ local function IdlingInPool(teambot, courier)
 end
 
 local function DeliveringToDeadGuy(teambot, bot)
-  return bot:IsDead()
+  return bot:IsDead() and teambot.data.courierReserver == bot
 end
 
 local function DeliveryTargetHasFullInventory(teambot, bot, courier)
@@ -125,33 +125,47 @@ end
 
 local function MoveCourier(teambot, bot, courier)
   if DeliveryTargetHasFullInventory(teambot, bot, courier) then
+    Echo("Target has full inventory")
     Free(teambot)
-    bot:Order(courier, "Stop")
+    ReturnHome(teambot, bot, courier)
   elseif CanDeliverToAnother(teambot, bot, courier) then
+    Echo("I have more job to do")
     DeliverItems(teambot, bot, courier)
   elseif IsAloneInWilderness(teambot, courier) then
+    Echo("scary wilderness")
+    Free(teambot)
     ReturnHome(teambot, bot, courier)
   elseif ReturnedHome(teambot, courier) then
+    Echo("home sweet home")
     teambot.data.courierState = IDLE
     Free(teambot)
   elseif DeliveryDone(teambot, courier) then
+    Echo("delivery done")
     TakeABreak(teambot)
   elseif DeliveringToDeadGuy(teambot, bot) then
+    Echo("my host is dead")
     Free(teambot)
-    ReturnHome(teambot, bot, courier)
+    teambot.data.courierState = IDLE
+    bot:Order(courier, "Stop")
   end
 end
 
-local function onthink(teambot, bot, canUpgrade)
+local function BuyNewCourier(bot)
+end
+
+local function onthink(teambot, bot, isSupport)
   if not IsInitialized(teambot) then
     Initialize(teambot)
   end
   UpdateCourier(teambot)
   local courier = teambot.data.courier
   if not courier then
+    if isSupport then
+      BuyNewCourier(bot)
+    end
     return
   end
-  if canUpgrade then
+  if isSupport then
     upgrader.onthink(bot, courier)
   end
   protector.onthink(bot, courier)
