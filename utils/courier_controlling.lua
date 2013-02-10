@@ -142,7 +142,7 @@ local function MoveCourier(teambot, bot, courier)
   end
 end
 
-local function onthink(teambot, bot)
+local function onthink(teambot, bot, canUpgrade)
   if not IsInitialized(teambot) then
     Initialize(teambot)
   end
@@ -151,7 +151,9 @@ local function onthink(teambot, bot)
   if not courier then
     return
   end
-  upgrader.onthink(bot, courier)
+  if canUpgrade then
+    upgrader.onthink(bot, courier)
+  end
   protector.onthink(bot, courier)
   itemHandler.onthink(bot, courier)
   if not CanThink(teambot, bot) then

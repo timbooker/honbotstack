@@ -114,7 +114,7 @@ function herobot:onthinkCustom(tGameVariables)
   if self:ProcessingStash() then
     return
   end
-  CourierControlling.onthink(self.teamBrain, self)
+  CourierControlling.onthink(self.teamBrain, self, self.teamBrain:AmISupport(self))
   if self:IsDead() then
     return
   end
@@ -413,6 +413,35 @@ healingAction.RunDown = function(bot)
   bot:Order(bot.brain.hero, "Stop")
 end
 
+local manaActionPotion = nil
+local manaActionRing = nil
+local manaAction = {}
+manaAction.name = "moar mana"
+manaAction.CanActivate = function(bot)
+  local hero = bot.brain.hero
+  local inv = hero:GetInventory()
+  for _, item in ipairs(inv) do
+    if item:GetTypeName() == "Item_ManaPotion" then
+      manaActionPotion = item
+    elseif item:GetTypeName() == "Item_Replenish" then
+      manaActionRing = item
+    end
+  end
+  return (manaActionPotion or manaActionRing and manaActionRing:CanActivate()) and hero:GetMana() < (hero:GetMaxMana() - 100)
+end
+manaAction.Activate = function(bot)
+  if manaActionRing and manaActionRing:CanActivate() then
+    bot:OrderItem(manaActionRing)
+    manaActionRing = nil
+  elseif manaActionPotion then
+    bot:OrderItemEntity(manaActionPotion, bot.brain.hero)
+    manaActionPotion = nil
+  end
+end
+manaAction.RunDown = function(bot)
+end
+
+PriorityActions.AddAction(manaAction)
 PriorityActions.AddAction(healingAction)
 PriorityActions.AddAction(harassActionBuilder())
 PriorityActions.AddAction(wardingAction)
