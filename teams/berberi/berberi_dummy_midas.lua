@@ -20,6 +20,8 @@ runfile "bots/utils/priority_actions.lua"
 local PriorityActions = Utils_PriorityActions
 runfile "bots/utils/warding.lua"
 local Warding = Utils_Warding
+runfile "bots/utils/rune_control.lua"
+local RuneControl = Utils_RuneControl
 
 local print, tostring, tremove = _G.print, _G.tostring, _G.table.remove
 
@@ -251,6 +253,16 @@ function herobot:GetHarassTarget()
   end
   return nil
 end
+
+local runeAction = {}
+runeAction.name = "checking rune"
+runeAction.CanActivate = function(bot)
+  return RuneControl.IsRuneUp()
+end
+runeAction.Activate = function(bot)
+  RuneControl.RuneAction(bot, bot.brain.hero)
+end
+PriorityActions.AddAction(runeAction)
 
 local wardingAction = {}
 wardingAction.name = "warding"
