@@ -262,7 +262,6 @@ end
 runeAction.Activate = function(bot)
   RuneControl.RuneAction(bot, bot.brain.hero)
 end
-PriorityActions.AddAction(runeAction)
 
 local wardingAction = {}
 wardingAction.name = "warding"
@@ -272,7 +271,6 @@ end
 wardingAction.Activate = function(bot)
   Warding.DoWarding(bot, bot.brain.hero, bot:GetWardingSpot())
 end
-PriorityActions.AddAction(wardingAction)
 
 local harassActionBuilder = function()
   local action = {}
@@ -287,7 +285,6 @@ local harassActionBuilder = function()
   end
   return action
 end
-PriorityActions.AddAction(harassActionBuilder())
 
 local defaultAction = {}
 defaultAction.name = "default"
@@ -297,4 +294,8 @@ end
 defaultAction.Activate = function(bot)
   bot:MoveToCreeps()
 end
+
+PriorityActions.AddAction(wardingAction)
+PriorityActions.AddAction(harassActionBuilder())
+PriorityActions.AddAction(runeAction)
 PriorityActions.AddAction(defaultAction)
