@@ -4,6 +4,8 @@ local teambot = _G.object
 runfile 'bots/tournament_options.lua'
 runfile 'bots/basic_metadata.lua'
 
+teambot.data = {}
+
 function teambot:onthink(tGameVariables)
   if not self.metadata.initialized then
     self.metadata:Initialize()

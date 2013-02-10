@@ -22,7 +22,6 @@ local function IsInitialized(teambot)
 end
 
 local function Initialize(teambot)
-  teambot.data = {}
   teambot.data.courier = nil
   teambot.data.courierState = IDLE
   teambot.data.courierReserver = nil

@@ -31,6 +31,8 @@ herobot.data.canUpgradeCourier = true
 herobot.data.creepWavePos = nil
 herobot.data.currentAction = nil
 
+local assignedToTeam = false
+
 local itemsToBuy = {
   'Item_MarkOfTheNovice',
   'Item_PretendersCrown',
@@ -100,6 +102,11 @@ function herobot:SkillBuildWhatNext()
 end
 
 function herobot:onthinkCustom(tGameVariables)
+  if not assignedToTeam then
+    Echo("Assign")
+    self.teamBrain:AddHero(self)
+    assignedToTeam = true
+  end
   if not self.brain.myLane then
     self.brain.myLane = self.metadata:GetMiddleLane()
   end
@@ -108,7 +115,6 @@ function herobot:onthinkCustom(tGameVariables)
   end
   CourierControlling.onthink(self.teamBrain, self)
   if self:IsDead() then
-    RuneControl.SkipCurrentRune(self, self.brain.hero)
     return
   end
   PriorityActions.onthink(self)
@@ -258,7 +264,7 @@ end
 local runeAction = {}
 runeAction.name = "checking rune"
 runeAction.CanActivate = function(bot)
-  return RuneControl.IsRuneUp()
+  return bot.teamBrain:AmIRuneCollector(bot) and RuneControl.IsRuneUp()
 end
 runeAction.Activate = function(bot)
   RuneControl.RuneAction(bot, bot.brain.hero)
